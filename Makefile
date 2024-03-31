@@ -30,4 +30,6 @@ run: main
 
 re: fclean $(LIBNAME)
 
+rerun: re run
+
 .PHONY: clean fclean main run re
