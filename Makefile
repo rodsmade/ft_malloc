@@ -1,6 +1,7 @@
 CC = gcc
 CFLAGS = -shared -o
-LIBNAME = libft_malloc.so
+LIBNAME = libft_malloc_$(HOSTTYPE).so
+LIBNAME_SHORT = ft_malloc_$(HOSTTYPE)
 SRC = ft_malloc.c
 
 $(LIBNAME): $(SRC)
@@ -13,7 +14,7 @@ fclean: clean
 	rm -f main.out
 
 main: $(LIBNAME) main.c
-	gcc main.c -Wl,-rpath,. -llibrary -L. -o main.out
+	gcc main.c -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -o main.out
 
 run: main
 	./main.out
