@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -shared -o
-LIBNAME = liblibrary.so
-SRC = library.c
+LIBNAME = libft_malloc.so
+SRC = ft_malloc.c
 
 $(LIBNAME): $(SRC)
 	$(CC) $(CFLAGS) $(LIBNAME) -fPIC $(SRC)
@@ -9,8 +9,15 @@ $(LIBNAME): $(SRC)
 clean:
 	rm -f $(LIBNAME)
 
+fclean: clean
+	rm -f main.out
+
 main: $(LIBNAME) main.c
-	gcc -o main.out main.c -L. -Wl,-rpath,. -llibrary
+	gcc main.c -Wl,-rpath,. -llibrary -L. -o main.out
 
 run: main
 	./main.out
+
+re: fclean $(LIBNAME)
+
+.PHONY: clean fclean main run re

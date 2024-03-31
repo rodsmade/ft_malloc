@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "library.h"
+#include "ft_malloc.h"
 
 int main() {
     printf("Hello, dynamic library!\n");
