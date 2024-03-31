@@ -14,9 +14,10 @@ SRC = ft_malloc.c
 
 $(LIBNAME): $(SRC)
 	$(CC) $(CFLAGS) $(LIBNAME) -fPIC $(SRC)
+	ln -sf $(LIBNAME) libft_malloc.so
 
 clean:
-	rm -f $(LIBNAME)
+	rm -f $(LIBNAME) libft_malloc.so
 
 fclean: clean
 	rm -f main.out
