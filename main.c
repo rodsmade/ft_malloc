@@ -6,7 +6,7 @@
 /*   By: roaraujo <roaraujo@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/31 17:18:48 by roaraujo          #+#    #+#             */
-/*   Updated: 2024/03/31 17:23:13 by roaraujo         ###   ########.fr       */
+/*   Updated: 2024/03/31 17:52:09 by roaraujo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,6 @@
 int	main(void)
 {
 	printf("Hello, dynamic library!\n");
-	function3();
+	// function3();
 	return (0);
 }
