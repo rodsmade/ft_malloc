@@ -6,25 +6,34 @@
 /*   By: roaraujo <roaraujo@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/31 17:18:59 by roaraujo          #+#    #+#             */
-/*   Updated: 2024/03/31 18:04:11 by roaraujo         ###   ########.fr       */
+/*   Updated: 2024/04/03 15:04:30 by roaraujo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_malloc.h"
 
-void	free(void *ptr)
-{
-	if (ptr)
-	{
-		// ...
-		return ;
-	}
-	return ;
-}
+AllocationEntry first_entry;
 
 void	*malloc(size_t size)
 {
-	return (NULL);
+	void *ptr;
+
+	ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	if (ptr == MAP_FAILED)
+		return (NULL);
+	
+	first_entry.address = ptr;
+	first_entry.size = size;
+	return (ptr);
+}
+
+void	free(void *ptr)
+{
+	if (ptr && ptr == first_entry.address)
+	{
+		munmap(ptr, first_entry.size);
+	}
+	return ;
 }
 
 void	*realloc(void *ptr, size_t size)

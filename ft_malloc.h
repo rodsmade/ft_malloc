@@ -6,7 +6,7 @@
 /*   By: roaraujo <roaraujo@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/31 17:18:54 by roaraujo          #+#    #+#             */
-/*   Updated: 2024/03/31 17:58:49 by roaraujo         ###   ########.fr       */
+/*   Updated: 2024/04/03 15:01:12 by roaraujo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,11 @@
 #include <sys/time.h>
 #include <sys/resource.h> // getrlimit()
 
+// Data Structures
+typedef struct AllocationEntry {
+    void *address;    // Address of the allocation
+    size_t size;      // Total size of the allocation in bytes
+} AllocationEntry;
 
 // Function prototypes
 void	free(void *ptr);

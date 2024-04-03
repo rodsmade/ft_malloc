@@ -28,6 +28,9 @@ main: $(LIBNAME) main.c
 run: main
 	./main.out
 
+val: main
+	valgrind --leak-check=full -q ./main.out
+
 re: fclean $(LIBNAME)
 
 rerun: re run
