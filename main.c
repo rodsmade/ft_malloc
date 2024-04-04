@@ -6,7 +6,7 @@
 /*   By: roaraujo <roaraujo@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/31 17:18:48 by roaraujo          #+#    #+#             */
-/*   Updated: 2024/04/03 14:52:22 by roaraujo         ###   ########.fr       */
+/*   Updated: 2024/04/04 17:15:50 by roaraujo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,9 @@ int	main(void)
 	printf("msg: >>%s<<\n", (char *) ptr);
 
 	free(ptr);
+
+
+	printf("Page size: %i\n", getpagesize());
 
 	return (0);
 }

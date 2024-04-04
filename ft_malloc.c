@@ -6,7 +6,7 @@
 /*   By: roaraujo <roaraujo@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/31 17:18:59 by roaraujo          #+#    #+#             */
-/*   Updated: 2024/04/03 15:04:30 by roaraujo         ###   ########.fr       */
+/*   Updated: 2024/04/04 17:15:29 by roaraujo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,22 +16,27 @@ AllocationEntry first_entry;
 
 void	*malloc(size_t size)
 {
-	void *ptr;
+	void						*ptr;
+	AllocationEntry	*entry;
 
-	ptr = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	ptr = mmap(NULL, sizeof(AllocationEntry) + size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 	if (ptr == MAP_FAILED)
 		return (NULL);
 	
-	first_entry.address = ptr;
-	first_entry.size = size;
-	return (ptr);
+	entry = (AllocationEntry *) ptr;
+	entry->address = ptr + sizeof(AllocationEntry);
+	entry->size = size;
+	return (entry->address);
 }
 
 void	free(void *ptr)
 {
-	if (ptr && ptr == first_entry.address)
+	AllocationEntry *entry;
+	
+	entry = (AllocationEntry *) (ptr - sizeof(AllocationEntry));
+	if (ptr && ptr == entry->address)
 	{
-		munmap(ptr, first_entry.size);
+		munmap(entry, entry->size);
 	}
 	return ;
 }
