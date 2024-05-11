@@ -12,37 +12,80 @@
 
 #include "ft_malloc.h"
 
-AllocationEntry first_entry;
+
+void	**get_allocations_ledger(void) {
+	static void **allocations_ledger = NULL;
+
+	// memory dedicated to keeping track of allocations
+	if (!allocations_ledger) {
+		allocations_ledger = (void **) mmap(NULL, getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+		// ledger is of size 4096
+		// it can hold 4096 / 8 = 512 pointers
+		int i = -1;
+		int total_amount_of_ptrs_ledger_can_hold = getpagesize() / sizeof(*allocations_ledger);
+		while (++i < total_amount_of_ptrs_ledger_can_hold)
+			allocations_ledger[i] = 0; //highly inefficient?
+	}
+
+	return allocations_ledger;
+}
+
+void	*page = NULL;
+void	*heap_head = NULL;
+long	total_allocd_bytes = 0;
 
 void	*malloc(size_t size)
 {
-	void						*ptr;
-	AllocationEntry	*entry;
-
-	ptr = mmap(NULL, sizeof(AllocationEntry) + size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-	if (ptr == MAP_FAILED)
+	if (total_allocd_bytes + size > getpagesize()) {
+		printf("[error] allocation is bigger than available space\n");
 		return (NULL);
-	
-	entry = (AllocationEntry *) ptr;
-	entry->address = ptr + sizeof(AllocationEntry);
-	entry->size = size;
-	return (entry->address);
+	}
+	// Actually allocated memory
+	if (!page /* or if size is bigger than available space... */) {
+		page = mmap(NULL, getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+		if (page == MAP_FAILED) // system failed to provide any mapped pages
+			return (NULL);
+		// page is of size 4096.
+		// this means i can allocate 4096 bytes.
+		heap_head = page;
+	}
+
+
+	void *newly_allocated_memory = heap_head;
+
+	void **allocations_ledger = get_allocations_ledger();
+	int i = -1;
+	while (allocations_ledger[++i] && i < (getpagesize() / sizeof(*allocations_ledger)))
+		continue;
+	allocations_ledger[i] = newly_allocated_memory;
+
+	heap_head = heap_head + size;
+	total_allocd_bytes += size;
+
+	return (newly_allocated_memory);
 }
 
 void	free(void *ptr)
 {
-	AllocationEntry *entry;
-	
-	entry = (AllocationEntry *) (ptr - sizeof(AllocationEntry));
-	if (ptr && ptr == entry->address)
-	{
-		munmap(entry, entry->size);
+	void **allocations_ledger = get_allocations_ledger();
+
+	if (ptr) {
+		int i = -1;
+		while (++i < (getpagesize() / sizeof(*allocations_ledger))) {
+			if (allocations_ledger[i] && allocations_ledger[i] == ptr) {
+				printf("gotta free the following pointer `%p`\n", ptr);
+				return ;
+			}
+		}
 	}
+	printf("pointer `%p` not found in the allocations ledger!!\n", ptr);
 	return ;
 }
 
 void	*realloc(void *ptr, size_t size)
 {
+	(void) ptr;
+	(void) size;
 	return (NULL);
 }
 

@@ -18,19 +18,40 @@ int	main(void)
 {
 	printf("Hello, dynamic library!\n");
 	// function3();
-	void *ptr;
+	void *ptr1;
+	void *ptr2;
+	void *ptr3;
+	void *ptr4;
+	void *ptr5;
+	void *ptr6;
+	void *ptr7;
 
-	ptr = malloc(25 * sizeof(char));
+	ptr1 = malloc(25 * sizeof(char));
+	ptr2 = malloc(250 * sizeof(char));
+	ptr3 = malloc(77 * sizeof(char));
+	ptr4 = malloc(23 * sizeof(char));
+	ptr5 = malloc(52 * sizeof(char));
+	ptr6 = malloc(643 * sizeof(char));
+	ptr7 = malloc(2500 * sizeof(char));
 	
-	ptr = strcpy(ptr, "Hello world from malloc!");
-	((char *)ptr)[24] = '\0';
+	ptr1 = strcpy(ptr1, "Hello world from malloc!");
+	((char *)ptr1)[24] = '\0';
 
-	printf("msg: >>%s<<\n", (char *) ptr);
+	printf("msg: >>%s<<\n", (char *) ptr1);
 
-	free(ptr);
-
-
-	printf("Page size: %i\n", getpagesize());
+	free(ptr1 + 1);
+	free(ptr2 + 1);
+	free(ptr3 + 1);
+	free(ptr4 + 1);
+	free(ptr5 + 1);
+	free(ptr6 + 1);
+	free(ptr1);
+	free(ptr2);
+	free(ptr3);
+	free(ptr4);
+	free(ptr5);
+	free(ptr6);
+	free(ptr7);
 
 	return (0);
 }

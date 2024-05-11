@@ -13,15 +13,19 @@
 #ifndef FT_MALLOC_H
 # define FT_MALLOC_H
 
-#include <sys/mman.h> // mmap(), munmap()
-#include <unistd.h> // getpagesize()
-#include <sys/time.h>
-#include <sys/resource.h> // getrlimit()
+# include <sys/mman.h> // mmap(), munmap()
+# include <unistd.h> // getpagesize()
+# include <sys/time.h>
+# include <sys/resource.h> // getrlimit()
+
+// DEBUGGING
+# include <stdio.h>
+
 
 // Data Structures
 typedef struct AllocationEntry {
-    void *address;    // Address of the allocation
-    size_t size;      // Total size of the allocation in bytes
+	void *address;	// Address of the allocation
+	size_t size;	// Total size of the allocation in bytes
 } AllocationEntry;
 
 // Function prototypes
