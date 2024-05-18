@@ -95,12 +95,16 @@ void	free(void *ptr)
 		size_t i = -1;
 		while (++i < (getpagesize() / sizeof(*allocations_ledger))) {
 			if (allocations_ledger[i] && allocations_ledger[i] == ptr) {
-				printf("gotta free the following pointer `%p`\n", ptr);
+				ft_putstr_fd("gotta free the following pointer `", 1);
+				ft_putptr_fd(ptr, 1);
+				ft_putstr_fd("`\n", 1);
 				return ;
 			}
 		}
 	}
-	printf("pointer `%p` not found in the allocations ledger!!\n", ptr);
+	ft_putstr_fd("pointer `", 1);
+	ft_putptr_fd(ptr, 1);
+	ft_putstr_fd("` not found in the allocations ledger!!\n", 1);
 	return ;
 }
 

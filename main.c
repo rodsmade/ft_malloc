@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "ft_malloc.h"
+#include "libft.h"
 
 int	main(void)
 {
@@ -56,7 +57,10 @@ int	main(void)
 	ptr1 = strcpy(ptr1, "Hello world from malloc!");
 	((char *)ptr1)[24] = '\0';
 
-	printf("msg: >>%s<<\n", (char *) ptr1);
+	ft_putstr_fd("total_allocd_bytes: ", 1);
+	ft_putstr_fd("msg: >>", 1);
+	ft_putstr_fd((char *) ptr1, 1);
+	ft_putstr_fd("<<\n", 1);
 
 	free(ptr1 + 1);
 	free(ptr2 + 1);
