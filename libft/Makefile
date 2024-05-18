@@ -64,20 +64,18 @@ CC = gcc
 FLAGS = -Wall -Wextra -Werror
 RM = rm -f
 
-all:	mk_objdir $(NAME)
-
-mk_objdir:
-	mkdir -p obj
+all:	$(NAME)
 
 bonus:	mk_objdir_b $(NAME_B)
 
 mk_objdir_b:
-	mkdir -p obj/bonus
+	@mkdir -p obj/bonus
 
 $(NAME): $(OBJECTS)
 	ar -rcs $(NAME) $(OBJECTS)
 
 obj/%.o: src/%.c
+	@mkdir -p obj
 	$(CC) $(FLAGS) -I ./include -c $< -o $@
 
 $(NAME_B): $(OBJECTS_B)

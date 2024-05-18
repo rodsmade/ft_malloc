@@ -11,11 +11,13 @@ LIBNAME_SHORT = ft_malloc_$(HOSTTYPE)
 
 SRC = ft_malloc.c
 
-$(LIBNAME): libft.a $(SRC)
+all: $(LIBNAME)
+
+$(LIBNAME): libft/libft.a $(SRC)
 	$(CC) -shared -o $(LIBNAME) -fPIC $(SRC) -L./libft -lft -I ./libft/include
 	ln -sf $(LIBNAME) libft_malloc.so
 
-libft.a: libft/Makefile
+libft/libft.a: libft/Makefile
 	make --directory=./libft
 
 clean:
