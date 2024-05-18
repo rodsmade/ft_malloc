@@ -22,6 +22,7 @@ SOURCES =	ft_append_char.c \
 			ft_putchar_fd.c \
 			ft_putendl_fd.c \
 			ft_putnbr_fd.c \
+			ft_putptr_fd.c \
 			ft_putstr_fd.c \
 			ft_split.c \
 			ft_strchr.c \
@@ -76,7 +77,7 @@ $(NAME): $(OBJECTS)
 
 obj/%.o: src/%.c
 	@mkdir -p obj
-	$(CC) $(FLAGS) -I ./include -c $< -o $@
+	$(CC) $(FLAGS) -I ./include -c $< -o $@ -fPIC
 
 $(NAME_B): $(OBJECTS_B)
 	ar -rcs $(NAME_B) $(OBJECTS_B)

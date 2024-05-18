@@ -69,8 +69,8 @@ char	**write_words(char **morsels, const char *s, char delimiter)
  * 
  * @param s A string to be split in smaller strings
  * @param c The delimiter character that marks the splitting points
- * @return char** A NULL-terminated malloc'd array of strings as the result of the
- * 	splitting process.
+ * @return char** A NULL-terminated malloc'd array of strings as the result
+ * of the splitting process.
  */
 char	**ft_split(char const *s, char c)
 {
