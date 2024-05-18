@@ -21,6 +21,7 @@
 // DEBUGGING
 # include <stdio.h>
 
+# include "libft.h"
 
 // Data Structures
 typedef struct AllocationEntry {

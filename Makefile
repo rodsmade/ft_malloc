@@ -1,5 +1,4 @@
-CC = gcc
-CFLAGS = -shared -o
+CC = gcc -Werror -Wextra -Wall
 
 # Check if HOSTTYPE variable is set
 ifeq ($(HOSTTYPE),)
@@ -12,18 +11,23 @@ LIBNAME_SHORT = ft_malloc_$(HOSTTYPE)
 
 SRC = ft_malloc.c
 
-$(LIBNAME): $(SRC)
-	$(CC) $(CFLAGS) $(LIBNAME) -fPIC $(SRC)
+$(LIBNAME): libft.a $(SRC)
+	$(CC) -shared -o $(LIBNAME) -fPIC $(SRC) -L./libft -lft -I ./libft/include
 	ln -sf $(LIBNAME) libft_malloc.so
 
+libft.a: libft/Makefile
+	make --directory=./libft
+
 clean:
+	make --directory=./libft clean
 	rm -f $(LIBNAME) libft_malloc.so
 
 fclean: clean
+	make --directory=./libft fclean
 	rm -f main.out
 
 main: $(LIBNAME) main.c
-	gcc main.c -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -o main.out
+	gcc main.c -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -I./libft/include -o main.out
 
 run: main
 	./main.out

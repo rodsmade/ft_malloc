@@ -21,8 +21,8 @@ void	**get_allocations_ledger(void) {
 		allocations_ledger = (void **) mmap(NULL, getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 		// ledger is of size 4096
 		// it can hold 4096 / 8 = 512 pointers
-		int i = -1;
-		int total_amount_of_ptrs_ledger_can_hold = getpagesize() / sizeof(*allocations_ledger);
+		size_t i = -1;
+		size_t total_amount_of_ptrs_ledger_can_hold = getpagesize() / sizeof(*allocations_ledger);
 		while (++i < total_amount_of_ptrs_ledger_can_hold)
 			allocations_ledger[i] = 0; //highly inefficient?
 	}
@@ -32,16 +32,38 @@ void	**get_allocations_ledger(void) {
 
 void	*page = NULL;
 void	*heap_head = NULL;
-long	total_allocd_bytes = 0;
+size_t	total_allocd_bytes = 0;
 
 void	*malloc(size_t size)
 {
-	if (total_allocd_bytes + size > getpagesize()) {
-		printf("[error] allocation is bigger than available space\n");
+	ft_putstr_fd("total_allocd_bytes: ", 1);
+	ft_putnbr_fd(total_allocd_bytes, 1);
+	ft_putchar_fd('\n', 1);
+	ft_putstr_fd("size: ", 1);
+	ft_putnbr_fd(size, 1);
+	ft_putchar_fd('\n', 1);
+	if (total_allocd_bytes + size > (size_t) getpagesize()) {
+		ft_putstr_fd("[error] allocation is bigger than available space\n", 2);
 		return (NULL);
 	}
 	// Actually allocated memory
 	if (!page /* or if size is bigger than available space... */) {
+
+		// // check system limits (max data a pgm can have)
+		// struct rlimit limit;
+		// // Get the resource limit for memory usage
+		// if (getrlimit(RLIMIT_DATA, &limit) == 0) {
+		// 	// Print the soft and hard limits
+		// 	ft_putstr_fd("Soft limit for data segment: ", 1);
+		// 	ft_putnbr_fd(limit.rlim_cur, 1);
+		// 	ft_putchar_fd('\n', 1);
+		// 	ft_putstr_fd("Hard limit for data segment: ", 1);
+		// 	ft_putnbr_fd(limit.rlim_max, 1);
+		// 	ft_putchar_fd('\n', 1);
+		// } else {
+		// 	return (NULL);
+		// }
+
 		page = mmap(NULL, getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 		if (page == MAP_FAILED) // system failed to provide any mapped pages
 			return (NULL);
@@ -54,8 +76,8 @@ void	*malloc(size_t size)
 	void *newly_allocated_memory = heap_head;
 
 	void **allocations_ledger = get_allocations_ledger();
-	int i = -1;
-	while (allocations_ledger[++i] && i < (getpagesize() / sizeof(*allocations_ledger)))
+	size_t i = -1;
+	while (allocations_ledger[++i] && i < ((size_t) getpagesize() / sizeof(*allocations_ledger)))
 		continue;
 	allocations_ledger[i] = newly_allocated_memory;
 
@@ -70,7 +92,7 @@ void	free(void *ptr)
 	void **allocations_ledger = get_allocations_ledger();
 
 	if (ptr) {
-		int i = -1;
+		size_t i = -1;
 		while (++i < (getpagesize() / sizeof(*allocations_ledger))) {
 			if (allocations_ledger[i] && allocations_ledger[i] == ptr) {
 				printf("gotta free the following pointer `%p`\n", ptr);
