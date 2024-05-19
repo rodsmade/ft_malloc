@@ -17,7 +17,7 @@
 
 int	main(void)
 {
-	// write(1, "Hello, dynamic library!\n", 24);
+	write(1, "Hello, dynamic library!\n", 24);
 
 	// // check system limits (max data a pgm can have)
 	// struct rlimit limit;

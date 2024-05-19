@@ -12,6 +12,34 @@
 
 #include "ft_malloc.h"
 
+// global variable is a pointer to a LegderEntry object that holds a pointer to "next"
+// "next" is a pointer to the next allocated memory pointer. before it there is metadata containing a pointer to "next"
+// which means for every pointer, size + sizeof(LedgerEntry) is actually allocated under the hood
+// i guess that works
+
+/*
+	as per the zones, I'm thinking. 4096 bytes is a LOT. 
+	zone 1 - 0 to 4096 bytes, needs defrag/coalesce strats
+		buckets of size 16, 64, 256 and 1024
+		a page is 4096. which means a page can contain
+			- 4 buckets of size 1024
+			- 16 buckets of size 256
+			- 64 buckets of size 64
+			- 256 buckets of size 16
+		this could be the first zone.
+
+	zone 2 - 4097 to 4MB, needs defrag/coalesce strats
+
+	zone 3 - 4MB+, not preallocated, allocated on demand actually, munmaped immediately btw.
+*/
+
+// new calls to mmap need to follow the available in getrlimit, even if it's infinite. remember you're not using sbreak 
+
+// Constructor function
+__attribute__((constructor))
+void mylib_init() {
+    write(1, "|||||||||||||||| Library initialized!\n", 38);
+}
 
 void	**get_allocations_ledger(void) {
 	static void **allocations_ledger = NULL;
@@ -36,10 +64,11 @@ size_t	total_allocd_bytes = 0;
 
 void	*malloc(size_t size)
 {
+	ft_putstr_fd(">>>>>>>>>> entrou malloc\n", 1);
 	ft_putstr_fd("total_allocd_bytes: ", 1);
 	ft_putnbr_fd(total_allocd_bytes, 1);
 	ft_putchar_fd('\n', 1);
-	ft_putstr_fd("size: ", 1);
+	ft_putstr_fd("size to be alloc'd: ", 1);
 	ft_putnbr_fd(size, 1);
 	ft_putchar_fd('\n', 1);
 	if (total_allocd_bytes + size > (size_t) getpagesize()) {
@@ -89,6 +118,7 @@ void	*malloc(size_t size)
 
 void	free(void *ptr)
 {
+	ft_putstr_fd(">>>>>>>>>> entrou free\n", 1);
 	void **allocations_ledger = get_allocations_ledger();
 
 	if (ptr) {
