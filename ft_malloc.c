@@ -35,106 +35,60 @@
 
 // new calls to mmap need to follow the available in getrlimit, even if it's infinite. remember you're not using sbreak 
 
+void *TINY__ZONE = NULL;
+void *SMALL__ZONE = NULL;
+
 // Constructor function
 __attribute__((constructor))
 void mylib_init() {
-    write(1, "|||||||||||||||| Library initialized!\n", 38);
+	write(1, "|||||||||||||||| Library initialized!\n", 38);
+
+	AllocationEntry *entry;
+
+	// alloc TINY zone
+	// initially one page only
+	TINY__ZONE = mmap(NULL, 2 * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	entry = (AllocationEntry *) TINY__ZONE;
+	entry->in_use = FALSE;
+	entry->size = 0;
+
+	// alloc SMALL zone
+	// initially one page only
+	SMALL__ZONE = mmap(NULL, 100 * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	entry = (AllocationEntry *) SMALL__ZONE;
+	entry->in_use = FALSE;
+	entry->size = 0;
 }
-
-void	**get_allocations_ledger(void) {
-	static void **allocations_ledger = NULL;
-
-	// memory dedicated to keeping track of allocations
-	if (!allocations_ledger) {
-		allocations_ledger = (void **) mmap(NULL, getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-		// ledger is of size 4096
-		// it can hold 4096 / 8 = 512 pointers
-		size_t i = -1;
-		size_t total_amount_of_ptrs_ledger_can_hold = getpagesize() / sizeof(*allocations_ledger);
-		while (++i < total_amount_of_ptrs_ledger_can_hold)
-			allocations_ledger[i] = 0; //highly inefficient?
-	}
-
-	return allocations_ledger;
-}
-
-void	*page = NULL;
-void	*heap_head = NULL;
-size_t	total_allocd_bytes = 0;
 
 void	*malloc(size_t size)
 {
-	ft_putstr_fd(">>>>>>>>>> entrou malloc\n", 1);
-	ft_putstr_fd("total_allocd_bytes: ", 1);
-	ft_putnbr_fd(total_allocd_bytes, 1);
-	ft_putchar_fd('\n', 1);
-	ft_putstr_fd("size to be alloc'd: ", 1);
-	ft_putnbr_fd(size, 1);
-	ft_putchar_fd('\n', 1);
-	if (total_allocd_bytes + size > (size_t) getpagesize()) {
-		ft_putstr_fd("[error] allocation is bigger than available space\n", 2);
-		return (NULL);
+	if (size <= TINY_ZONE_THRESHOLD) {
+		ft_putstr_fd("vai alocar na tiny\n", 1);
+		AllocationEntry *head = (AllocationEntry *) TINY__ZONE;
+		while (head->in_use) {
+			head += sizeof(AllocationEntry) + head->size;
+		}
+		// head tá no próximo endereço vazio
+		head->in_use = TRUE;
+		head->size = size;
+
+		head += sizeof(AllocationEntry);
+		return (head);
 	}
-	// Actually allocated memory
-	if (!page /* or if size is bigger than available space... */) {
-
-		// // check system limits (max data a pgm can have)
-		// struct rlimit limit;
-		// // Get the resource limit for memory usage
-		// if (getrlimit(RLIMIT_DATA, &limit) == 0) {
-		// 	// Print the soft and hard limits
-		// 	ft_putstr_fd("Soft limit for data segment: ", 1);
-		// 	ft_putnbr_fd(limit.rlim_cur, 1);
-		// 	ft_putchar_fd('\n', 1);
-		// 	ft_putstr_fd("Hard limit for data segment: ", 1);
-		// 	ft_putnbr_fd(limit.rlim_max, 1);
-		// 	ft_putchar_fd('\n', 1);
-		// } else {
-		// 	return (NULL);
-		// }
-
-		page = mmap(NULL, getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-		if (page == MAP_FAILED) // system failed to provide any mapped pages
-			return (NULL);
-		// page is of size 4096.
-		// this means i can allocate 4096 bytes.
-		heap_head = page;
+	if (size <= SMALL_ZONE_THRESHOLD) {
+		ft_putstr_fd("tem que alocar na small\n", 1);
+		return NULL;
 	}
-
-
-	void *newly_allocated_memory = heap_head;
-
-	void **allocations_ledger = get_allocations_ledger();
-	size_t i = -1;
-	while (allocations_ledger[++i] && i < ((size_t) getpagesize() / sizeof(*allocations_ledger)))
-		continue;
-	allocations_ledger[i] = newly_allocated_memory;
-
-	heap_head = heap_head + size;
-	total_allocd_bytes += size;
-
-	return (newly_allocated_memory);
+	if (size > SMALL_ZONE_THRESHOLD) {
+		ft_putstr_fd("tem que alocar na LARGE\n", 1);
+		return NULL;
+	}
+	return NULL;
 }
 
 void	free(void *ptr)
 {
-	ft_putstr_fd(">>>>>>>>>> entrou free\n", 1);
-	void **allocations_ledger = get_allocations_ledger();
-
-	if (ptr) {
-		size_t i = -1;
-		while (++i < (getpagesize() / sizeof(*allocations_ledger))) {
-			if (allocations_ledger[i] && allocations_ledger[i] == ptr) {
-				ft_putstr_fd("gotta free the following pointer `", 1);
-				ft_putptr_fd(ptr, 1);
-				ft_putstr_fd("`\n", 1);
-				return ;
-			}
-		}
-	}
-	ft_putstr_fd("pointer `", 1);
-	ft_putptr_fd(ptr, 1);
-	ft_putstr_fd("` not found in the allocations ledger!!\n", 1);
+	(void) ptr;
 	return ;
 }
 

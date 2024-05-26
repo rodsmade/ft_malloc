@@ -18,15 +18,22 @@
 # include <sys/time.h>
 # include <sys/resource.h> // getrlimit()
 
+# include "libft.h"
+
 // DEBUGGING
 # include <stdio.h>
 
-# include "libft.h"
+
+// MACROS
+# define TINY_ZONE_THRESHOLD 64
+# define SMALL_ZONE_THRESHOLD 2048
+# define TRUE 1
+# define FALSE 0
 
 // Data Structures
 typedef struct AllocationEntry {
-	void *address;	// Address of the allocation
-	size_t size;	// Total size of the allocation in bytes
+	char	in_use;
+	int		size;
 } AllocationEntry;
 
 // Function prototypes
