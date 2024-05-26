@@ -29,7 +29,7 @@ fclean: clean
 	rm -f main.out
 
 main: $(LIBNAME) main.c
-	gcc main.c -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -I./libft/include -o main.out
+	gcc main.c -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -L./libft -I./libft/include -lft -o main.out
 
 run: main
 	./main.out
