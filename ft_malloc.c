@@ -37,6 +37,10 @@
 
 void *TINY__ZONE = NULL;
 void *SMALL__ZONE = NULL;
+// sizeof(LEDGER ) = getpagesize();
+// sizeof(void *) = 8;
+// total available allocations = getpagesize() / sizeof(void *) = 4096 / 8 = 512;
+void *LEDGER = NULL;
 
 // Constructor function
 __attribute__((constructor))
@@ -58,6 +62,13 @@ void mylib_init() {
 	entry = (AllocationEntry *) SMALL__ZONE;
 	entry->in_use = FALSE;
 	entry->size = 0;
+
+	// LEDGER
+	// initially one page only
+	LEDGER = mmap(NULL, 1 * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	unsigned long i = -1;
+	while (++i < getpagesize() / sizeof(void *))
+		((void **)LEDGER)[i] = NULL;
 }
 
 void	*malloc(size_t size)
@@ -73,11 +84,28 @@ void	*malloc(size_t size)
 		head->size = size;
 
 		head += sizeof(AllocationEntry);
+		int i = -1;
+		while (((void **)LEDGER)[++i])
+			continue ;
+		((void **)LEDGER)[i] = head;
 		return (head);
 	}
 	if (size <= SMALL_ZONE_THRESHOLD) {
-		ft_putstr_fd("tem que alocar na small\n", 1);
-		return NULL;
+		ft_putstr_fd("vai alocar na small\n", 1);
+		AllocationEntry *head = (AllocationEntry *) SMALL__ZONE;
+		while (head->in_use) {
+			head += sizeof(AllocationEntry) + head->size;
+		}
+		// head tá no próximo endereço vazio
+		head->in_use = TRUE;
+		head->size = size;
+
+		head += sizeof(AllocationEntry);
+		int i = -1;
+		while (((void **)LEDGER)[++i])
+			continue ;
+		((void **)LEDGER)[i] = head;
+		return (head);
 	}
 	if (size > SMALL_ZONE_THRESHOLD) {
 		ft_putstr_fd("tem que alocar na LARGE\n", 1);
@@ -89,6 +117,20 @@ void	*malloc(size_t size)
 void	free(void *ptr)
 {
 	(void) ptr;
+	// checar se o ptr passado de fato é um ponteiro que eu dei malloc.
+	int i = -1;
+	while (((void **)LEDGER)[++i]) {
+		if (((void **)LEDGER)[i] == ptr) {
+			// dar free
+			AllocationEntry *metadata = ptr - sizeof(AllocationEntry);
+			metadata->in_use = FALSE;
+			ft_putstr_fd("Successful memory deallocation\n", 1);
+			return ;
+		}
+	}
+
+	// o ptr passado não é uma alocação que consta no meu Ledger.
+	ft_putstr_fd("Free in invalid pointer\n", 1);
 	return ;
 }
 

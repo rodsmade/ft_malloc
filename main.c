@@ -19,22 +19,6 @@ int	main(void)
 {
 	write(1, "Hello, dynamic library!\n", 24);
 
-	// // check system limits (max data a pgm can have)
-	// struct rlimit limit;
-	// // Get the resource limit for memory usage
-	// if (getrlimit(RLIMIT_DATA, &limit) == 0) {
-	// 	// Print the soft and hard limits
-	// 	ft_putstr_fd("Soft limit for data segment: ", 1);
-	// 	ft_putnbr_fd(limit.rlim_cur, 1);
-	// 	ft_putchar_fd('\n', 1);
-	// 	ft_putstr_fd("Hard limit for data segment: ", 1);
-	// 	ft_putnbr_fd(limit.rlim_max, 1);
-	// 	ft_putchar_fd('\n', 1);
-	// 	RLIM_INFINITY;
-	// } else {
-	// 	return (-42);
-	// }
-
 	// function3();
 	void *ptr1;
 	void *ptr2;
@@ -45,6 +29,9 @@ int	main(void)
 	void *ptr7;
 	void *ptr8;
 
+	ptr1 = strcpy(ptr1, "Hello world from malloc!");
+	((char *)ptr1)[24] = '\0';
+
 	ptr1 = malloc(25 * sizeof(char));
 	ptr2 = malloc(250 * sizeof(char));
 	ptr3 = malloc(77 * sizeof(char));
@@ -53,9 +40,6 @@ int	main(void)
 	ptr6 = malloc(643 * sizeof(char));
 	ptr7 = malloc(2500 * sizeof(char));
 	ptr8 = malloc(2500 * sizeof(char));
-	
-	ptr1 = strcpy(ptr1, "Hello world from malloc!");
-	((char *)ptr1)[24] = '\0';
 
 	ft_putstr_fd("total_allocd_bytes: ", 1);
 	ft_putstr_fd("msg: >>", 1);
