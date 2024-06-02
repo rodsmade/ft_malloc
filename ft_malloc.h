@@ -36,6 +36,11 @@ typedef struct AllocationEntry {
 	int		size;
 } AllocationEntry;
 
+typedef struct LargeAllocationEntry {
+	void	*address;
+	size_t	size;
+} LargeAllocationEntry;
+
 // Function prototypes
 void	free(void *ptr);
 void	*malloc(size_t size);

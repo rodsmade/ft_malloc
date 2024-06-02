@@ -28,6 +28,9 @@ int	main(void)
 	void *ptr6;
 	void *ptr7;
 	void *ptr8;
+	void *ptr9;
+	void *ptr10;
+	void *ptr11;
 
 	ptr1 = malloc(25 * sizeof(char));
 	ptr2 = malloc(250 * sizeof(char));
@@ -37,9 +40,9 @@ int	main(void)
 	ptr6 = malloc(643 * sizeof(char));
 	ptr7 = malloc(2500 * sizeof(char));
 	ptr8 = malloc(4096 * sizeof(char));
-	ptr8 = malloc(40960 * sizeof(char));
-	ptr8 = malloc(409600 * sizeof(char));
-	ptr8 = malloc(4096000 * sizeof(char));
+	ptr9 = malloc(40960 * sizeof(char));
+	ptr10 = malloc(409600 * sizeof(char));
+	ptr11 = malloc(4096000 * sizeof(char));
 
 	show_alloc_mem();
 

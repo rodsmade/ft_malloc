@@ -19,6 +19,7 @@ void *SMALL__ZONE = NULL;
 void *LARGE__ZONE = NULL;
 
 void *LEDGER = NULL;
+void *LARGE_ALLOCS_LEDGER = NULL;
 
 // Constructor function
 __attribute__((constructor))
@@ -40,11 +41,18 @@ void mylib_init() {
 	entry->size = 0;
 
 	// LEDGER
-	// initially one page only
+	// one page only
 	LEDGER = mmap(NULL, 1 * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 	unsigned long i = -1;
 	while (++i < getpagesize() / sizeof(void *))
 		((void **)LEDGER)[i] = NULL;
+
+	// LARGE LEDGER
+	// one page only
+	LARGE_ALLOCS_LEDGER = mmap(NULL, 1 * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	i = -1;
+	while (++i < getpagesize() / sizeof(void *))
+		((void **)LARGE_ALLOCS_LEDGER)[i] = NULL;
 }
 
 void	*malloc(size_t size)
@@ -82,8 +90,14 @@ void	*malloc(size_t size)
 		return (head);
 	}
 	if (size > SMALL_ZONE_THRESHOLD) {
-		ft_putstr_fd("tem que alocar na LARGE\n", 1);
-		return NULL;
+		void *chunk = mmap(NULL, 1 * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+
+		int i = -1;
+		while (((LargeAllocationEntry *) LARGE_ALLOCS_LEDGER)[++i].address != NULL)
+			continue ;
+		((LargeAllocationEntry *) LARGE_ALLOCS_LEDGER)[i].address = chunk;
+		((LargeAllocationEntry *) LARGE_ALLOCS_LEDGER)[i].size = size;
+		return (chunk);
 	}
 	return NULL;
 }
@@ -101,6 +115,16 @@ void	free(void *ptr)
 			return ;
 		}
 	}
+
+	// checar se o ptr passado tá no LARGE_ALLOCS_LEDGER
+	i = -1;
+	while (((LargeAllocationEntry *)LARGE_ALLOCS_LEDGER)[++i].address) {
+		if (((LargeAllocationEntry *)LARGE_ALLOCS_LEDGER)[i].address == ptr) {
+			munmap(ptr, ((LargeAllocationEntry *)LARGE_ALLOCS_LEDGER)[++i].size);
+			return ;
+		}
+	}
+
 
 	// o ptr passado não é uma alocação que consta no meu Ledger.
 	ft_putstr_fd("Free in invalid pointer\n", 2);
@@ -159,8 +183,19 @@ void show_alloc_mem()
 
 	// Print allocations in LARGE__ZONE
 	ft_putstr_fd("LARGE : ", 1);
-	ft_putptr_fd(LARGE__ZONE, 1);
+	ft_putptr_fd(LARGE_ALLOCS_LEDGER, 1);
 	ft_putchar_fd('\n', 1);
+	LargeAllocationEntry *largeEntry = LARGE_ALLOCS_LEDGER;
+	int i = -1;
+	while (largeEntry[++i].address != NULL) {
+		ft_putptr_fd((void *) largeEntry[i].address, 1);
+		ft_putstr_fd(" - ", 1);
+		ft_putptr_fd((void *) largeEntry[i].address + largeEntry[i].size, 1);
+		ft_putstr_fd(" : ", 1);
+		ft_putnbr_fd(largeEntry[i].size, 1);
+		total += largeEntry[i].size;
+		ft_putendl_fd(" bytes", 1);
+	}
 
 	ft_putstr_fd("Total : ", 1);
 	ft_putnbr_fd(total, 1);
