@@ -29,9 +29,6 @@ int	main(void)
 	void *ptr7;
 	void *ptr8;
 
-	ptr1 = strcpy(ptr1, "Hello world from malloc!");
-	((char *)ptr1)[24] = '\0';
-
 	ptr1 = malloc(25 * sizeof(char));
 	ptr2 = malloc(250 * sizeof(char));
 	ptr3 = malloc(77 * sizeof(char));
@@ -39,12 +36,12 @@ int	main(void)
 	ptr5 = malloc(52 * sizeof(char));
 	ptr6 = malloc(643 * sizeof(char));
 	ptr7 = malloc(2500 * sizeof(char));
-	ptr8 = malloc(2500 * sizeof(char));
+	ptr8 = malloc(4096 * sizeof(char));
+	ptr8 = malloc(40960 * sizeof(char));
+	ptr8 = malloc(409600 * sizeof(char));
+	ptr8 = malloc(4096000 * sizeof(char));
 
-	ft_putstr_fd("total_allocd_bytes: ", 1);
-	ft_putstr_fd("msg: >>", 1);
-	ft_putstr_fd((char *) ptr1, 1);
-	ft_putstr_fd("<<\n", 1);
+	show_alloc_mem();
 
 	free(ptr1 + 1);
 	free(ptr2 + 1);
