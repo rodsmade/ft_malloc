@@ -61,5 +61,7 @@ int	main(void)
 	free(ptr7);
 	free(ptr8);
 
+	ft_putendl_fd("bye bye main", 1);
+
 	return (0);
 }

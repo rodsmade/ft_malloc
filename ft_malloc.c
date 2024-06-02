@@ -24,6 +24,7 @@ void *LARGE_ALLOCS_LEDGER = NULL;
 // Constructor function
 __attribute__((constructor))
 void mylib_init() {
+	ft_putendl_fd("hello malloc", 1);
 	AllocationEntry *entry;
 
 	// alloc TINY zone
@@ -104,7 +105,9 @@ void	*malloc(size_t size)
 
 void	free(void *ptr)
 {
-	(void) ptr;
+	if (!ptr)
+		return ;
+
 	// checar se o ptr passado de fato é um ponteiro que eu dei malloc.
 	int i = -1;
 	while (((void **)LEDGER)[++i]) {
@@ -125,9 +128,8 @@ void	free(void *ptr)
 		}
 	}
 
-
-	// o ptr passado não é uma alocação que consta no meu Ledger.
-	ft_putstr_fd("Free in invalid pointer\n", 2);
+	// // o ptr passado não é uma alocação que consta no meu Ledger.
+	// ft_putstr_fd("Free in invalid pointer\n", 2);
 	return ;
 }
 
@@ -203,4 +205,12 @@ void show_alloc_mem()
 
 	ft_putendl_fd("=================================================", 1);
 	return ;
+}
+
+void mylib_exit() __attribute__((destructor));
+
+void mylib_exit() {
+	ft_putendl_fd("byebye malloc!!!", 1);
+	munmap(TINY__ZONE, 4 * getpagesize());
+	munmap(SMALL__ZONE, 100 * getpagesize());
 }
