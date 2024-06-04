@@ -6,23 +6,24 @@
 /*   By: roaraujo <roaraujo@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/31 17:18:54 by roaraujo          #+#    #+#             */
-/*   Updated: 2024/04/03 15:01:12 by roaraujo         ###   ########.fr       */
+/*   Updated: 2024/06/03 23:13:51 by roaraujo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_MALLOC_H
 # define FT_MALLOC_H
 
+// STD LIBS
 # include <sys/mman.h> // mmap(), munmap()
 # include <unistd.h> // getpagesize()
 # include <sys/time.h>
 # include <sys/resource.h> // getrlimit()
 
+// CUSTOM HEADERS
 # include "libft.h"
 
 // DEBUGGING
 # include <stdio.h>
-
 
 // MACROS
 # define TINY_ZONE_THRESHOLD 128
@@ -30,18 +31,42 @@
 # define TRUE 1
 # define FALSE 0
 
-// Data Structures
-typedef struct AllocationEntry {
+// Define the enum
+typedef enum {
+	TINY,
+	SMALL,
+	LARGE
+} e_zone;
+
+// INLINE FUNCTIONS
+static inline int get_tiny_zone_size() {
+    static int tiny_zone_size = 0;
+    if (tiny_zone_size == 0) {
+        tiny_zone_size = 4 * getpagesize();
+    }
+    return tiny_zone_size;
+}
+
+static inline int get_small_zone_size() {
+    static int small_zone_size = 0;
+    if (small_zone_size == 0) {
+        small_zone_size = 100 * getpagesize();
+    }
+    return small_zone_size;
+}
+
+// DATA STRUCTURES
+typedef struct AllocationMetadata {
 	char	in_use;
 	int		size;
-} AllocationEntry;
+} AllocationMetadata;
 
-typedef struct LargeAllocationEntry {
+typedef struct LargeAllocationMetadata {
 	void	*address;
 	size_t	size;
-} LargeAllocationEntry;
+} LargeAllocationMetadata;
 
-// Function prototypes
+// PROTOTYPES
 void	free(void *ptr);
 void	*malloc(size_t size);
 void	*realloc(void *ptr, size_t size);

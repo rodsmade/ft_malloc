@@ -6,7 +6,7 @@
 /*   By: roaraujo <roaraujo@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/31 17:18:59 by roaraujo          #+#    #+#             */
-/*   Updated: 2024/04/04 17:15:29 by roaraujo         ###   ########.fr       */
+/*   Updated: 2024/06/03 23:16:36 by roaraujo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,21 +23,20 @@ void *LARGE_ALLOCS_LEDGER = NULL;
 
 // Constructor function
 __attribute__((constructor))
-void mylib_init() {
-	ft_putendl_fd("hello malloc", 1);
-	AllocationEntry *entry;
+void prologue() {
+	AllocationMetadata *entry;
 
 	// alloc TINY zone
 	// initially one page only
-	TINY__ZONE = mmap(NULL, 4 * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-	entry = (AllocationEntry *) TINY__ZONE;
+	TINY__ZONE = mmap(NULL, get_tiny_zone_size(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	entry = (AllocationMetadata *) TINY__ZONE;
 	entry->in_use = FALSE;
 	entry->size = 0;
 
 	// alloc SMALL zone
 	// initially one page only
-	SMALL__ZONE = mmap(NULL, 100 * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-	entry = (AllocationEntry *) SMALL__ZONE;
+	SMALL__ZONE = mmap(NULL, get_small_zone_size(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	entry = (AllocationMetadata *) SMALL__ZONE;
 	entry->in_use = FALSE;
 	entry->size = 0;
 
@@ -56,51 +55,61 @@ void mylib_init() {
 		((void **)LARGE_ALLOCS_LEDGER)[i] = NULL;
 }
 
+void *push_to_back(void *array, void *ptr) {
+	int i = -1;
+	while (((void **)array)[++i])
+		continue ;
+	((void **)array)[i] = ptr;
+	return (array);
+}
+
+void	*allocate_ptr(size_t size, e_zone zone) {
+	void *zone_start = NULL;
+	switch (zone) {
+		case TINY:
+				zone_start = TINY__ZONE; break;
+		case SMALL:
+				zone_start = SMALL__ZONE; break;
+		default:
+				return NULL; break;
+	}
+	AllocationMetadata *entry = zone_start;
+	while (entry->in_use) {
+		entry += sizeof(AllocationMetadata) + entry->size;
+	}
+	// Marks memory chunk as used, next chunk as unused
+	entry->in_use = TRUE;
+	entry->size = size;
+	// aqui potencialmente pode dar ruim qnd chegar no final da tiny/página
+	AllocationMetadata *next_entry = (void *) entry + sizeof(AllocationMetadata) + size;
+	next_entry->in_use = FALSE;
+
+	void *ptr = (void *) entry + sizeof(AllocationMetadata);
+
+	// Add new allocation ptr to ledger
+	LEDGER = push_to_back(LEDGER, ptr);
+	return (ptr);
+}
+
 void	*malloc(size_t size)
 {
-	if (size <= TINY_ZONE_THRESHOLD) {
-		AllocationEntry *head = (AllocationEntry *) TINY__ZONE;
-		while (head->in_use) {
-			head += sizeof(AllocationEntry) + head->size;
-		}
-		head->in_use = TRUE;
-		head->size = size;
-		((AllocationEntry *) head + sizeof(AllocationEntry) + size)->in_use = FALSE;
+	void *ptr = NULL;
 
-		head += sizeof(AllocationEntry);
-		int i = -1;
-		while (((void **)LEDGER)[++i])
-			continue ;
-		((void **)LEDGER)[i] = head;
-		return (head);
-	}
-	if (size > TINY_ZONE_THRESHOLD && size <= SMALL_ZONE_THRESHOLD) {
-		AllocationEntry *head = (AllocationEntry *) SMALL__ZONE;
-		while (head->in_use) {
-			head += sizeof(AllocationEntry) + head->size;
-		}
-		head->in_use = TRUE;
-		head->size = size;
-		((AllocationEntry *) head + sizeof(AllocationEntry) + size)->in_use = FALSE;
-
-		head += sizeof(AllocationEntry);
-		int i = -1;
-		while (((void **)LEDGER)[++i])
-			continue ;
-		((void **)LEDGER)[i] = head;
-		return (head);
-	}
+	if (size <= TINY_ZONE_THRESHOLD)
+		ptr = allocate_ptr(size, TINY);
+	if (size > TINY_ZONE_THRESHOLD && size <= SMALL_ZONE_THRESHOLD)
+		ptr = allocate_ptr(size, SMALL);
 	if (size > SMALL_ZONE_THRESHOLD) {
 		void *chunk = mmap(NULL, 1 * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 
 		int i = -1;
-		while (((LargeAllocationEntry *) LARGE_ALLOCS_LEDGER)[++i].address != NULL)
+		while (((LargeAllocationMetadata *) LARGE_ALLOCS_LEDGER)[++i].address != NULL)
 			continue ;
-		((LargeAllocationEntry *) LARGE_ALLOCS_LEDGER)[i].address = chunk;
-		((LargeAllocationEntry *) LARGE_ALLOCS_LEDGER)[i].size = size;
-		return (chunk);
+		((LargeAllocationMetadata *) LARGE_ALLOCS_LEDGER)[i].address = chunk;
+		((LargeAllocationMetadata *) LARGE_ALLOCS_LEDGER)[i].size = size;
+		ptr = chunk;
 	}
-	return NULL;
+	return (ptr);
 }
 
 void	free(void *ptr)
@@ -113,7 +122,7 @@ void	free(void *ptr)
 	while (((void **)LEDGER)[++i]) {
 		if (((void **)LEDGER)[i] == ptr) {
 			// dar free
-			AllocationEntry *metadata = ptr - sizeof(AllocationEntry);
+			AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
 			metadata->in_use = FALSE;
 			return ;
 		}
@@ -121,9 +130,9 @@ void	free(void *ptr)
 
 	// checar se o ptr passado tá no LARGE_ALLOCS_LEDGER
 	i = -1;
-	while (((LargeAllocationEntry *)LARGE_ALLOCS_LEDGER)[++i].address) {
-		if (((LargeAllocationEntry *)LARGE_ALLOCS_LEDGER)[i].address == ptr) {
-			munmap(ptr, ((LargeAllocationEntry *)LARGE_ALLOCS_LEDGER)[++i].size);
+	while (((LargeAllocationMetadata *)LARGE_ALLOCS_LEDGER)[++i].address) {
+		if (((LargeAllocationMetadata *)LARGE_ALLOCS_LEDGER)[i].address == ptr) {
+			munmap(ptr, ((LargeAllocationMetadata *)LARGE_ALLOCS_LEDGER)[++i].size);
 			return ;
 		}
 	}
@@ -142,52 +151,52 @@ void	*realloc(void *ptr, size_t size)
 
 void show_alloc_mem()
 {
-	AllocationEntry *head;
+	AllocationMetadata *head;
 	int total = 0;
 
 	ft_putendl_fd("=================================================", 1);
 	ft_putendl_fd("=               MEMORY LAYOUT                   =", 1);
 	ft_putendl_fd("=================================================", 1);
 
-	// Print allocations in TINY__ZONE
+	// Print allocations in TINY_
 	ft_putstr_fd("TINY : ", 1);
 	ft_putptr_fd(TINY__ZONE, 1);
 	ft_putchar_fd('\n', 1);
 
-	head = (AllocationEntry *) TINY__ZONE;
+	head = (AllocationMetadata *) TINY__ZONE;
 	while (head->in_use) {
-		ft_putptr_fd((void *) head + sizeof(AllocationEntry), 1);
+		ft_putptr_fd((void *) head + sizeof(AllocationMetadata), 1);
 		ft_putstr_fd(" - ", 1);
-		ft_putptr_fd((void *) head + sizeof(AllocationEntry) + head->size, 1);
+		ft_putptr_fd((void *) head + sizeof(AllocationMetadata) + head->size, 1);
 		ft_putstr_fd(" : ", 1);
 		ft_putnbr_fd(head->size, 1);
 		total += head->size;
 		ft_putendl_fd(" bytes", 1);
-		head += sizeof(AllocationEntry) + head->size;
+		head += sizeof(AllocationMetadata) + head->size;
 	}
 
-	// Print allocations in SMALL__ZONE
+	// Print allocations in SMALL_
 	ft_putstr_fd("SMALL : ", 1);
 	ft_putptr_fd(SMALL__ZONE, 1);
 	ft_putchar_fd('\n', 1);
 
-	head = (AllocationEntry *) SMALL__ZONE;
+	head = (AllocationMetadata *) SMALL__ZONE;
 	while (head->in_use) {
-		ft_putptr_fd((void *) head + sizeof(AllocationEntry), 1);
+		ft_putptr_fd((void *) head + sizeof(AllocationMetadata), 1);
 		ft_putstr_fd(" - ", 1);
-		ft_putptr_fd((void *) head + sizeof(AllocationEntry) + head->size, 1);
+		ft_putptr_fd((void *) head + sizeof(AllocationMetadata) + head->size, 1);
 		ft_putstr_fd(" : ", 1);
 		ft_putnbr_fd(head->size, 1);
 		total += head->size;
 		ft_putendl_fd(" bytes", 1);
-		head += sizeof(AllocationEntry) + head->size;
+		head += sizeof(AllocationMetadata) + head->size;
 	}
 
-	// Print allocations in LARGE__ZONE
+	// Print allocations in LARGE_
 	ft_putstr_fd("LARGE : ", 1);
 	ft_putptr_fd(LARGE_ALLOCS_LEDGER, 1);
 	ft_putchar_fd('\n', 1);
-	LargeAllocationEntry *largeEntry = LARGE_ALLOCS_LEDGER;
+	LargeAllocationMetadata *largeEntry = LARGE_ALLOCS_LEDGER;
 	int i = -1;
 	while (largeEntry[++i].address != NULL) {
 		ft_putptr_fd((void *) largeEntry[i].address, 1);
@@ -207,10 +216,9 @@ void show_alloc_mem()
 	return ;
 }
 
-void mylib_exit() __attribute__((destructor));
+void epilogue() __attribute__((destructor));
 
-void mylib_exit() {
-	ft_putendl_fd("byebye malloc!!!", 1);
-	munmap(TINY__ZONE, 4 * getpagesize());
-	munmap(SMALL__ZONE, 100 * getpagesize());
+void epilogue() {
+	munmap(TINY__ZONE, get_tiny_zone_size());
+	munmap(SMALL__ZONE, get_small_zone_size());
 }

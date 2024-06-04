@@ -6,7 +6,7 @@
 /*   By: roaraujo <roaraujo@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/31 17:18:48 by roaraujo          #+#    #+#             */
-/*   Updated: 2024/04/04 17:15:50 by roaraujo         ###   ########.fr       */
+/*   Updated: 2024/06/03 23:17:44 by roaraujo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,6 @@
 
 int	main(void)
 {
-	write(1, "Hello, dynamic library!\n", 24);
-
-	// function3();
 	void *ptr1;
 	void *ptr2;
 	void *ptr3;
@@ -60,8 +57,6 @@ int	main(void)
 	free(ptr6);
 	free(ptr7);
 	free(ptr8);
-
-	ft_putendl_fd("bye bye main", 1);
 
 	return (0);
 }
