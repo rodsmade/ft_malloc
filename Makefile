@@ -14,7 +14,7 @@ SRC = ft_malloc.c
 all: $(LIBNAME)
 
 $(LIBNAME): libft/libft.a $(SRC)
-	$(CC) -shared -o $(LIBNAME) -fPIC $(SRC) -L./libft -lft -I ./libft/include
+	$(CC) -shared -o $(LIBNAME) -fPIC $(SRC) -g3 -L./libft -lft -I ./libft/include
 	ln -sf $(LIBNAME) libft_malloc.so
 
 libft/libft.a: libft/Makefile
@@ -29,13 +29,13 @@ fclean: clean
 	rm -f main.out
 
 main: $(LIBNAME) main.c
-	gcc main.c -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -L./libft -I./libft/include -lft -o main.out
+	gcc main.c -g3 -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -L./libft -I./libft/include -lft -o main.out
 
 run: main
 	./main.out
 
 val: main
-	valgrind --leak-check=full -q ./main.out
+	valgrind --soname-synonyms=somalloc=libft_malloc.so --leak-check=full -q ./main.out
 
 re: fclean $(LIBNAME)
 
