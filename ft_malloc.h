@@ -62,7 +62,6 @@ typedef struct AllocationMetadata {
 } AllocationMetadata;
 
 typedef struct LargeAllocationMetadata {
-	void	*address;
 	size_t	size;
 } LargeAllocationMetadata;
 

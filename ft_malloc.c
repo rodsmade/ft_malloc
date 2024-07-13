@@ -63,6 +63,22 @@ void *push_to_back(void *array, void *ptr) {
 	return (array);
 }
 
+// void *pop(void *array, void *ptr) {
+// 	int i = -1;
+// 	while (((void **)array)[++i] && ((void **)array)[i] != ptr)
+// 		;
+
+// 	if (((void **)array)[i]) {
+// 		while (((void **)array)[i + 1]) {
+// 			((void **)array)[i] = ((void **)array)[i + 1];
+// 			i++;
+// 		}
+// 		((void **)array)[i] = NULL;
+// 	}
+
+// 	return (array);
+// }
+
 void	*allocate_ptr(size_t size, e_zone zone) {
 	void *zone_start = NULL;
 	switch (zone) {
@@ -100,14 +116,14 @@ void	*malloc(size_t size)
 	if (size > TINY_ZONE_THRESHOLD && size <= SMALL_ZONE_THRESHOLD)
 		ptr = allocate_ptr(size, SMALL);
 	if (size > SMALL_ZONE_THRESHOLD) {
-		void *chunk = mmap(NULL, 1 * getpagesize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+		void *chunk = mmap(NULL, size + sizeof(LargeAllocationMetadata), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+		// Fills in metadata
+		((LargeAllocationMetadata *) chunk)->size = size;
 
-		int i = -1;
-		while (((LargeAllocationMetadata *) LARGE_ALLOCS_LEDGER)[++i].address != NULL)
-			continue ;
-		((LargeAllocationMetadata *) LARGE_ALLOCS_LEDGER)[i].address = chunk;
-		((LargeAllocationMetadata *) LARGE_ALLOCS_LEDGER)[i].size = size;
-		ptr = chunk;
+		ptr = (void *) chunk + sizeof(LargeAllocationMetadata);
+
+		// Push pointer to LARGE_ALLOCS_LEDGER
+		LARGE_ALLOCS_LEDGER = push_to_back(LARGE_ALLOCS_LEDGER, ptr);
 	}
 	return (ptr);
 }
@@ -130,9 +146,10 @@ void	free(void *ptr)
 
 	// checar se o ptr passado tá no LARGE_ALLOCS_LEDGER
 	i = -1;
-	while (((LargeAllocationMetadata *)LARGE_ALLOCS_LEDGER)[++i].address) {
-		if (((LargeAllocationMetadata *)LARGE_ALLOCS_LEDGER)[i].address == ptr) {
-			munmap(ptr, ((LargeAllocationMetadata *)LARGE_ALLOCS_LEDGER)[++i].size);
+	while (((void **)LARGE_ALLOCS_LEDGER)[++i]) {
+		if (((void **)LARGE_ALLOCS_LEDGER)[i] == ptr) {
+			// dar free
+			munmap((void *)ptr - sizeof(LargeAllocationMetadata), ((LargeAllocationMetadata *)(void *)ptr - sizeof(LargeAllocationMetadata))->size + sizeof(LargeAllocationMetadata));
 			return ;
 		}
 	}
@@ -196,15 +213,16 @@ void show_alloc_mem()
 	ft_putstr_fd("LARGE : ", 1);
 	ft_putptr_fd(LARGE_ALLOCS_LEDGER, 1);
 	ft_putchar_fd('\n', 1);
-	LargeAllocationMetadata *largeEntry = LARGE_ALLOCS_LEDGER;
+	void **largeEntry = LARGE_ALLOCS_LEDGER;
 	int i = -1;
-	while (largeEntry[++i].address != NULL) {
-		ft_putptr_fd((void *) largeEntry[i].address, 1);
+	while (largeEntry[++i] != NULL) {
+		ft_putptr_fd((void *) largeEntry[i], 1);
 		ft_putstr_fd(" - ", 1);
-		ft_putptr_fd((void *) largeEntry[i].address + largeEntry[i].size, 1);
+		size_t alloc_size = ((LargeAllocationMetadata *)(((void *) largeEntry[i]) - sizeof(LargeAllocationMetadata)))->size;
+		ft_putptr_fd((void *) largeEntry[i] + alloc_size, 1);
 		ft_putstr_fd(" : ", 1);
-		ft_putnbr_fd(largeEntry[i].size, 1);
-		total += largeEntry[i].size;
+		ft_putnbr_fd(alloc_size, 1);
+		total += alloc_size;
 		ft_putendl_fd(" bytes", 1);
 	}
 
