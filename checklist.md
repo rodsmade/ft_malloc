@@ -5,6 +5,7 @@
 - [ ] Lógica de reaproveitar espaços da small e tiny zones
 - [ ] verificar se vai dar pau quando estourar o tamanho das zonas (por conta daquele 1 byte de true/false)
 - [ ] write tests for your own and also to help evaluators
+- [ ] e se passar -1 pro malloc
 
 
 ## from pdf
