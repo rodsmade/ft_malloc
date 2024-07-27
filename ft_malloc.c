@@ -111,6 +111,8 @@ void	*malloc(size_t size)
 {
 	void *ptr = NULL;
 
+	if (!size)
+		return (NULL);
 	if (size <= TINY_ZONE_THRESHOLD)
 		ptr = allocate_ptr(size, TINY);
 	if (size > TINY_ZONE_THRESHOLD && size <= SMALL_ZONE_THRESHOLD)
