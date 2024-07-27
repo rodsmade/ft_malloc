@@ -25,7 +25,21 @@
 // DEBUGGING
 # include <stdio.h>
 
+// GLOBAL VARIABLES FOR TESTING
+extern void *TINY__ZONE;
+extern void *SMALL__ZONE;
+extern void *LARGE__ZONE;
+extern void *LEDGER;
+extern void *LARGE_ALLOCS_LEDGER;
+
 // MACROS
+// ## Colours
+# define BOLD "\033[1m"
+# define BOLD_GREEN "\033[1;32m"
+# define BOLD_RED "\033[1;31m"
+# define BOLD_YELLOW "\033[1;33m"
+# define RESET "\033[0m"
+// ## Constants
 # define TINY_ZONE_THRESHOLD 128
 # define SMALL_ZONE_THRESHOLD 4096
 # define TRUE 1

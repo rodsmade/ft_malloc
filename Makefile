@@ -41,4 +41,9 @@ re: fclean $(LIBNAME)
 
 rerun: re run
 
-.PHONY: clean fclean main run re
+tests: $(LIBNAME) tests.c
+	gcc -Werror -Wextra -Wall tests.c -Wl,-rpath,. -lft_malloc_x86_64_Linux -L. -L./libft -I./libft/include -lft -o tests.out
+	./tests.out
+	rm ./tests.out
+
+.PHONY: clean fclean main run re rerun val tests
