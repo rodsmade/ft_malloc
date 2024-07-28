@@ -42,7 +42,7 @@ re: fclean $(LIBNAME)
 rerun: re run
 
 tests: $(LIBNAME) tests.c
-	gcc -Werror -Wextra -Wall tests.c -Wl,-rpath,. -lft_malloc_x86_64_Linux -L. -L./libft -I./libft/include -lft -o tests.out
+	gcc -Werror -Wextra -Wall tests.c test_utils.c -Wl,-rpath,. -lft_malloc_x86_64_Linux -L. -L./libft -I./libft/include -lft -o tests.out
 	./tests.out
 	rm ./tests.out
 
