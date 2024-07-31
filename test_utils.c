@@ -33,10 +33,10 @@ void print_test_name(const char *test_name) {
 }
 
 // Wrapper function to run a test case
-void run_test_case(TestFunction test_func, const char *test_name, unsigned int *test_count) {
-    print_test_index(*test_count);
+void run_test_case(TestFunction test_func, const char *test_name) {
+    print_test_index(g_total_test_cases_count);
     print_test_name(test_name);
     test_func();
-    (*test_count)++;
+    (g_total_test_cases_count)++;
     ft_putchar_fd('\n', 1);
 }
