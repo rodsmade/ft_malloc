@@ -49,7 +49,54 @@ void free_10_bytes_LEDGER_should_mark_allocation_as_unused() {
 }
 
 void allocations_within_tiny_zone_threshold_should_be_registered_in_LEDGER() {
-    assert(0);
+    // Arrange
+    unsigned int ALLOC_SIZES[5] = {1, 16, 42, TINY_ZONE_THRESHOLD / 2, TINY_ZONE_THRESHOLD};
+    void *ptrs[5];
+
+    // Act
+    for (int i = 0; i < 5; i++) {
+        ptrs[i] = malloc(ALLOC_SIZES[i]);
+    }
+
+    // Assert
+    for (int i = 0; i < 5; i++) {
+        assert(contains(LEDGER, ptrs[i]));
+        assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[i]));
+    }
+}
+
+void allocations_within_small_zone_threshold_should_be_registered_in_LEDGER() {
+    // Arrange
+    unsigned int ALLOC_SIZES[5] = {TINY_ZONE_THRESHOLD + 1, TINY_ZONE_THRESHOLD + 16, TINY_ZONE_THRESHOLD + 42, SMALL_ZONE_THRESHOLD / 2, SMALL_ZONE_THRESHOLD};
+    void *ptrs[5];
+
+    // Act
+    for (int i = 0; i < 5; i++) {
+        ptrs[i] = malloc(ALLOC_SIZES[i]);
+    }
+
+    // Assert
+    for (int i = 0; i < 5; i++) {
+        assert(contains(LEDGER, ptrs[i]));
+        assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[i]));
+    }
+}
+
+void allocations_beyond_small_zone_threshold_should_be_registered_in_LARGE_ALLOCS_LEDGER() {
+    // Arrange
+    unsigned int ALLOC_SIZES[5] = {SMALL_ZONE_THRESHOLD + 1, SMALL_ZONE_THRESHOLD + 16, SMALL_ZONE_THRESHOLD + 42, SMALL_ZONE_THRESHOLD * 2, SMALL_ZONE_THRESHOLD * 100};
+    void *ptrs[5];
+
+    // Act
+    for (int i = 0; i < 5; i++) {
+        ptrs[i] = malloc(ALLOC_SIZES[i]);
+    }
+
+    // Assert
+    for (int i = 0; i < 5; i++) {
+        assert(contains(LARGE_ALLOCS_LEDGER, ptrs[i]));
+        assert(!contains(LEDGER, ptrs[i]));
+    }
 }
 
 int main() {
@@ -62,6 +109,8 @@ int main() {
     RUN_TEST_CASE(allocate_10_bytes_LEDGER_should_contain_entry_with_10_bytes_in_use, &total_test_cases_count);
     RUN_TEST_CASE(free_10_bytes_LEDGER_should_mark_allocation_as_unused, &total_test_cases_count);
     RUN_TEST_CASE(allocations_within_tiny_zone_threshold_should_be_registered_in_LEDGER, &total_test_cases_count);
+    RUN_TEST_CASE(allocations_within_small_zone_threshold_should_be_registered_in_LEDGER, &total_test_cases_count);
+    RUN_TEST_CASE(allocations_beyond_small_zone_threshold_should_be_registered_in_LARGE_ALLOCS_LEDGER, &total_test_cases_count);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(total_test_cases_count, 1);

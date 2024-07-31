@@ -9,6 +9,16 @@ void assert(int comparison) {
     ft_putchar_fd(' ', 1);
 }
 
+bool contains(void *array, void *ptr) {
+    (void) array;
+    (void) ptr;
+    for (int i = 0; ((void **)array)[i]; i++) {
+        if (((void **)array)[i] == ptr)
+            return TRUE;
+    }
+    return FALSE;
+}
+
 void print_test_index(unsigned int index) {
     ft_putstr_fd(BOLD_YELLOW "[", 1);
     ft_putnbr_fd(index, 1);

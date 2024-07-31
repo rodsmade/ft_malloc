@@ -44,6 +44,7 @@ typedef enum {
 	SMALL,
 	LARGE
 } e_zone;
+typedef char bool;
 
 // INLINE FUNCTIONS
 static inline int get_tiny_zone_size() {
