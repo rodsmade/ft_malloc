@@ -64,6 +64,14 @@ static inline int get_small_zone_size() {
 	return small_zone_size;
 }
 
+static inline int get_ledger_size() {
+	static int ledger_size = 0;
+	if (ledger_size == 0) {
+		ledger_size = 1 * getpagesize();
+	}
+	return ledger_size;
+}
+
 static inline size_t get_max_rlimit_data() {
 	static size_t max_rlimit_data = 0;
 	if (max_rlimit_data == 0) {
