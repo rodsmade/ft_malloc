@@ -6,7 +6,7 @@
 
 unsigned int g_total_test_cases_count = 0;
 
-void allocate_10_bytes_LEDGER_should_contain_entry_with_10_bytes_in_use() {
+void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use() {
     // Arrange
     int ALLOC_SIZE = 10;
 
@@ -21,7 +21,7 @@ void allocate_10_bytes_LEDGER_should_contain_entry_with_10_bytes_in_use() {
     assert(metadata->size == ALLOC_SIZE);
 }
 
-void allocate_0_bytes_LEDGER_should_be_unchanged() {
+void when_allocating_0_bytes_then_LEDGER_should_be_unchanged() {
     // Arrange
     int ALLOC_SIZE = 0;
 
@@ -33,7 +33,7 @@ void allocate_0_bytes_LEDGER_should_be_unchanged() {
     assert(((void **)LEDGER)[0] == 0);
 }
 
-void free_10_bytes_LEDGER_should_mark_allocation_as_unused() {
+void when_freeing_10_bytes_then_LEDGER_should_mark_allocation_as_unused() {
     // Arrange
     int ALLOC_SIZE = 42;
 
@@ -50,7 +50,7 @@ void free_10_bytes_LEDGER_should_mark_allocation_as_unused() {
     assert(metadata->in_use == FALSE);
 }
 
-void allocations_within_tiny_zone_threshold_should_be_registered_in_LEDGER() {
+void when_allocating_within_tiny_zone_threshold_then_allocation_should_be_registered_in_LEDGER() {
     // Arrange
     unsigned int ALLOC_SIZES[5] = {1, 16, 42, TINY_ZONE_THRESHOLD / 2, TINY_ZONE_THRESHOLD};
     void *ptrs[5];
@@ -67,7 +67,7 @@ void allocations_within_tiny_zone_threshold_should_be_registered_in_LEDGER() {
     }
 }
 
-void allocations_within_small_zone_threshold_should_be_registered_in_LEDGER() {
+void when_allocating_within_small_zone_threshold_then_allocation_should_be_registered_in_LEDGER() {
     // Arrange
     unsigned int ALLOC_SIZES[5] = {TINY_ZONE_THRESHOLD + 1, TINY_ZONE_THRESHOLD + 16, TINY_ZONE_THRESHOLD + 42, SMALL_ZONE_THRESHOLD / 2, SMALL_ZONE_THRESHOLD};
     void *ptrs[5];
@@ -84,7 +84,7 @@ void allocations_within_small_zone_threshold_should_be_registered_in_LEDGER() {
     }
 }
 
-void allocations_beyond_small_zone_threshold_should_be_registered_in_LARGE_ALLOCS_LEDGER() {
+void when_allocating_beyond_small_zone_threshold_then_allocation_should_be_registered_in_LARGE_ALLOCS_LEDGER() {
     // Arrange
     unsigned int ALLOC_SIZES[5] = {SMALL_ZONE_THRESHOLD + 1, SMALL_ZONE_THRESHOLD + 16, SMALL_ZONE_THRESHOLD + 42, SMALL_ZONE_THRESHOLD * 2, SMALL_ZONE_THRESHOLD * 100};
     void *ptrs[5];
@@ -105,12 +105,12 @@ int main() {
 
     ft_putstr_fd(BOLD_YELLOW "INITIATING TESTS...\n\n\n" RESET, 1);
 
-    RUN_TEST_CASE(allocate_0_bytes_LEDGER_should_be_unchanged);
-    RUN_TEST_CASE(allocate_10_bytes_LEDGER_should_contain_entry_with_10_bytes_in_use);
-    RUN_TEST_CASE(free_10_bytes_LEDGER_should_mark_allocation_as_unused);
-    RUN_TEST_CASE(allocations_within_tiny_zone_threshold_should_be_registered_in_LEDGER);
-    RUN_TEST_CASE(allocations_within_small_zone_threshold_should_be_registered_in_LEDGER);
-    RUN_TEST_CASE(allocations_beyond_small_zone_threshold_should_be_registered_in_LARGE_ALLOCS_LEDGER);
+    RUN_TEST_CASE(when_allocating_0_bytes_then_LEDGER_should_be_unchanged);
+    RUN_TEST_CASE(when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use);
+    RUN_TEST_CASE(when_freeing_10_bytes_then_LEDGER_should_mark_allocation_as_unused);
+    RUN_TEST_CASE(when_allocating_within_tiny_zone_threshold_then_allocation_should_be_registered_in_LEDGER);
+    RUN_TEST_CASE(when_allocating_within_small_zone_threshold_then_allocation_should_be_registered_in_LEDGER);
+    RUN_TEST_CASE(when_allocating_beyond_small_zone_threshold_then_allocation_should_be_registered_in_LARGE_ALLOCS_LEDGER);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(g_total_test_cases_count, 1);
