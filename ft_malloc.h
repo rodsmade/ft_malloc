@@ -49,29 +49,29 @@ typedef char bool;
 
 // INLINE FUNCTIONS
 static inline int get_tiny_zone_size() {
-    static int tiny_zone_size = 0;
-    if (tiny_zone_size == 0) {
-        tiny_zone_size = 4 * getpagesize();
-    }
-    return tiny_zone_size;
+	static int tiny_zone_size = 0;
+	if (tiny_zone_size == 0) {
+		tiny_zone_size = 4 * getpagesize();
+	}
+	return tiny_zone_size;
 }
 
 static inline int get_small_zone_size() {
-    static int small_zone_size = 0;
-    if (small_zone_size == 0) {
-        small_zone_size = 100 * getpagesize();
-    }
-    return small_zone_size;
+	static int small_zone_size = 0;
+	if (small_zone_size == 0) {
+		small_zone_size = 100 * getpagesize();
+	}
+	return small_zone_size;
 }
 
 static inline size_t get_max_rlimit_data() {
-    static size_t max_rlimit_data = 0;
-    if (max_rlimit_data == 0) {
-        struct rlimit rlimits_data = {0};
-        getrlimit(RLIMIT_DATA, &rlimits_data);
-        max_rlimit_data  = rlimits_data.rlim_cur < CUSTOM_MALLOC_UPPER_LIMIT ? rlimits_data.rlim_cur : CUSTOM_MALLOC_UPPER_LIMIT;
-    }
-    return (max_rlimit_data);
+	static size_t max_rlimit_data = 0;
+	if (max_rlimit_data == 0) {
+		struct rlimit rlimits_data = {0};
+		getrlimit(RLIMIT_DATA, &rlimits_data);
+		max_rlimit_data  = rlimits_data.rlim_cur < CUSTOM_MALLOC_UPPER_LIMIT ? rlimits_data.rlim_cur : CUSTOM_MALLOC_UPPER_LIMIT;
+	}
+	return (max_rlimit_data);
 }
 
 // DATA STRUCTURES
