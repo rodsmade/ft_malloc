@@ -39,6 +39,22 @@ void run_test_case(TestFunction test_func, const char *test_name) {
     test_func();
     (g_total_test_cases_count)++;
     ft_putchar_fd('\n', 1);
+
+    // RESET MEMORY BETWEEN TESTS
+    // go through large allocs ledgers and unmap
+    for (int i = 0; ((void **)LARGE_ALLOCS_LEDGER)[i]; i++) {
+        void *ptr = ((void **)LARGE_ALLOCS_LEDGER)[i];
+        void *allocation_head = (void *)ptr - sizeof(LargeAllocationMetadata);
+        size_t alloc_size = ((LargeAllocationMetadata *)allocation_head)->size;
+        munmap(ptr, alloc_size);
+    }
+    // unset every byte in ledgers
+    ft_bzero(LEDGER, get_ledger_size());
+    ft_bzero(LARGE_ALLOCS_LEDGER, get_ledger_size());
+
+    // unset every byte in allocation zones
+    ft_bzero(TINY__ZONE, get_tiny_zone_size());
+    ft_bzero(SMALL__ZONE, get_small_zone_size());
 }
 
 void perror_exit(int condition, const char* err_msg) {

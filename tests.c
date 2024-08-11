@@ -45,8 +45,7 @@ void when_freeing_10_bytes_then_LEDGER_should_mark_allocation_as_unused() {
     // Assert
     AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
 
-    // @todo: execuções de testes não estão apartadas umas das outras.
-    assert(((void **)LEDGER)[1] == ptr);
+    assert(((void **)LEDGER)[0] == ptr);
     assert(metadata->size == ALLOC_SIZE);
     assert(metadata->in_use == FALSE);
 }
