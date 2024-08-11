@@ -29,7 +29,7 @@ fclean: clean
 	rm -f main.out
 
 main: $(LIBNAME) main.c
-	gcc main.c -g3 -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -L./libft -I./libft/include -lft -o main.out
+	$(CC) main.c -g3 -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -L./libft -I./libft/include -lft -o main.out
 
 run: main
 	./main.out
@@ -42,7 +42,7 @@ re: fclean $(LIBNAME)
 rerun: re run
 
 tests: $(LIBNAME) tests.c
-	gcc -Werror -Wextra -Wall tests.c test_utils.c -Wl,-rpath,. -lft_malloc_x86_64_Linux -L. -L./libft -I./libft/include -lft -o tests.out
+	$(CC) tests.c test_utils.c -Wl,-rpath,. -lft_malloc_x86_64_Linux -L. -L./libft -I./libft/include -lft -o tests.out
 	./tests.out
 	rm ./tests.out
 
