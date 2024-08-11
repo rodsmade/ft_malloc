@@ -179,21 +179,31 @@ void when_pointer_is_not_allocated_by_malloc_then_free_has_no_effect() {
     char buffer[100] = {0};
 
     //  Temporarily redirect STD_ERR to temporary test file
+    int stderr_fd_backup = dup(STDERR_FILENO); perror_exit(stderr_fd_backup, "dup");
+
     char *test_file_name = "test_file";
-    int temp_test_fd = open(test_file_name, O_RDWR | O_CREAT, 0666);
-    dup2(temp_test_fd, STDERR_FILENO);
+    int temp_test_fd = open(test_file_name, O_RDWR | O_CREAT | O_TRUNC, 0644); perror_exit(temp_test_fd, "open");
+
+    perror_exit(dup2(temp_test_fd, STDERR_FILENO), "dup2");
 
     // Act
     free(random_ptr);
 
     //  Restores STD_ERR
-    dup2(STDERR_FILENO, temp_test_fd);
+    perror_exit(dup2(stderr_fd_backup, STDERR_FILENO), "dup2");
+
+    // Close file descriptors
+    close(stderr_fd_backup);
+    close(temp_test_fd);
 
     // Assert
     // Read contents of temporary test file into buffer
-    temp_test_fd = open(test_file_name, O_RDONLY);
-    read(temp_test_fd, buffer, 100);
+    temp_test_fd = open(test_file_name, O_RDONLY); perror_exit(temp_test_fd, "open");
+
+    ssize_t bytes_read = read(temp_test_fd, buffer, 100); perror_exit(bytes_read, "read");
+
     assert(ft_strncmp(expected_err_msg, buffer, ft_strlen(expected_err_msg) + 1) == 0);
+
     // Cleanup
     close(temp_test_fd);
     remove(test_file_name);

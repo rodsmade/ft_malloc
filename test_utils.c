@@ -40,3 +40,10 @@ void run_test_case(TestFunction test_func, const char *test_name) {
     (g_total_test_cases_count)++;
     ft_putchar_fd('\n', 1);
 }
+
+void perror_exit(int condition, const char* err_msg) {
+    if (condition == -1) {
+        perror(err_msg);
+        exit(EXIT_FAILURE);
+    }
+}
