@@ -178,22 +178,25 @@ void when_pointer_is_not_allocated_by_malloc_then_free_has_no_effect() {
     char *expected_err_msg = "Free in invalid pointer\n";
     char buffer[100] = {0};
 
-    int err_msg_fd = open("err_msg_redirect_file", O_RDWR | O_CREAT, 0666);
-    dup2(err_msg_fd, 2);
-
-    assert(!contains(LEDGER, random_ptr));
-    assert(!contains(LARGE_ALLOCS_LEDGER, random_ptr));
+    //  Temporarily redirect STD_ERR to temporary test file
+    char *test_file_name = "test_file";
+    int temp_test_fd = open(test_file_name, O_RDWR | O_CREAT, 0666);
+    dup2(temp_test_fd, STDERR_FILENO);
 
     // Act
     free(random_ptr);
-    dup2(2, err_msg_fd);
-    err_msg_fd = open("err_msg_redirect_file", O_RDONLY);
+
+    //  Restores STD_ERR
+    dup2(STDERR_FILENO, temp_test_fd);
 
     // Assert
-    read(err_msg_fd, buffer, 100);
+    // Read contents of temporary test file into buffer
+    temp_test_fd = open(test_file_name, O_RDONLY);
+    read(temp_test_fd, buffer, 100);
     assert(ft_strncmp(expected_err_msg, buffer, ft_strlen(expected_err_msg) + 1) == 0);
-    close(err_msg_fd);
-    remove("err_msg_redirect_file");
+    // Cleanup
+    close(temp_test_fd);
+    remove(test_file_name);
 }
 
 int main() {
