@@ -3,6 +3,9 @@
 
 # include "libft.h"
 # include "ft_malloc.h"
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
 
 // ## Colours
 # define BOLD "\033[1m"
