@@ -35,6 +35,7 @@ extern void *LARGE_ALLOCS_LEDGER;
 // MACROS
 # define TINY_ZONE_THRESHOLD 128
 # define SMALL_ZONE_THRESHOLD 4096
+# define CUSTOM_MALLOC_UPPER_LIMIT 8589934592
 # define TRUE 1
 # define FALSE 0
 
@@ -61,6 +62,16 @@ static inline int get_small_zone_size() {
         small_zone_size = 100 * getpagesize();
     }
     return small_zone_size;
+}
+
+static inline size_t get_max_rlimit_data() {
+    static size_t max_rlimit_data = 0;
+    if (max_rlimit_data == 0) {
+        struct rlimit rlimits_data = {0};
+        getrlimit(RLIMIT_DATA, &rlimits_data);
+        max_rlimit_data  = rlimits_data.rlim_cur < CUSTOM_MALLOC_UPPER_LIMIT ? rlimits_data.rlim_cur : CUSTOM_MALLOC_UPPER_LIMIT;
+    }
+    return (max_rlimit_data);
 }
 
 // DATA STRUCTURES

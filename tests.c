@@ -209,6 +209,18 @@ void when_pointer_is_not_allocated_by_malloc_then_free_has_no_effect() {
     remove(test_file_name);
 }
 
+void when_allocating_MAX_SIZET_then_malloc_should_return_NULL() {
+    // Arrange
+    void *ptr;
+    size_t large_size = (size_t) -1;
+
+    // Act
+    ptr = malloc(large_size);
+
+    // Assert
+    assert(ptr == NULL);
+}
+
 int main() {
 
     ft_putstr_fd(BOLD_YELLOW "INITIATING TESTS...\n\n\n" RESET, 1);
@@ -221,6 +233,7 @@ int main() {
     RUN_TEST_CASE(when_allocating_beyond_small_zone_threshold_then_allocation_should_be_registered_only_in_LARGE_ALLOCS_LEDGER);
     RUN_TEST_CASE(when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain_the_allocation_anymore);
     RUN_TEST_CASE(when_pointer_is_not_allocated_by_malloc_then_free_has_no_effect);
+    RUN_TEST_CASE(when_allocating_MAX_SIZET_then_malloc_should_return_NULL);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(g_total_test_cases_count, 1);
