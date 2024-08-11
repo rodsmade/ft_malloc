@@ -63,21 +63,21 @@ void *push_to_back(void *array, void *ptr) {
 	return (array);
 }
 
-// void *pop(void *array, void *ptr) {
-// 	int i = -1;
-// 	while (((void **)array)[++i] && ((void **)array)[i] != ptr)
-// 		;
+void *pop(void *array, void *ptr) {
+	int i = -1;
+	while (((void **)array)[++i] && ((void **)array)[i] != ptr)
+		;
 
-// 	if (((void **)array)[i]) {
-// 		while (((void **)array)[i + 1]) {
-// 			((void **)array)[i] = ((void **)array)[i + 1];
-// 			i++;
-// 		}
-// 		((void **)array)[i] = NULL;
-// 	}
+	if (((void **)array)[i]) {
+		while (((void **)array)[i + 1]) {
+			((void **)array)[i] = ((void **)array)[i + 1];
+			i++;
+		}
+		((void **)array)[i] = NULL;
+	}
 
-// 	return (array);
-// }
+	return (array);
+}
 
 void	*allocate_ptr(size_t size, e_zone zone) {
 	void *zone_start = NULL;
@@ -139,25 +139,37 @@ void	free(void *ptr)
 	int i = -1;
 	while (((void **)LEDGER)[++i]) {
 		if (((void **)LEDGER)[i] == ptr) {
+			// ft_putstr_fd("[DEBUG] tá no LEDGER\n", 1);
 			// dar free
 			AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
 			metadata->in_use = FALSE;
 			return ;
 		}
 	}
+	// ft_putstr_fd("[DEBUG] Não tá no LEDGER\n", 1);
 
 	// checar se o ptr passado tá no LARGE_ALLOCS_LEDGER
 	i = -1;
 	while (((void **)LARGE_ALLOCS_LEDGER)[++i]) {
 		if (((void **)LARGE_ALLOCS_LEDGER)[i] == ptr) {
 			// dar free
-			munmap((void *)ptr - sizeof(LargeAllocationMetadata), ((LargeAllocationMetadata *)(void *)ptr - sizeof(LargeAllocationMetadata))->size + sizeof(LargeAllocationMetadata));
+			// ft_putstr_fd("[DEBUG] tá no LARGE_ALLOCS_LEDGER\n", 1);
+			void *allocation_head = (void *)ptr - sizeof(LargeAllocationMetadata);
+			size_t alloc_size = ((LargeAllocationMetadata *)allocation_head)->size;
+
+			// return memory to system
+			munmap(allocation_head, sizeof(AllocationMetadata) + alloc_size);
+
+			// remove entry from ledger
+			LARGE_ALLOCS_LEDGER = pop(LARGE_ALLOCS_LEDGER, ptr);
+
 			return ;
 		}
 	}
+	// ft_putstr_fd("[DEBUG] Não tá no LARGE_ALLOCS_LEDGER\n", 1);
 
 	// // o ptr passado não é uma alocação que consta no meu Ledger.
-	// ft_putstr_fd("Free in invalid pointer\n", 2);
+	ft_putstr_fd("Free in invalid pointer\n", 2);
 	return ;
 }
 
