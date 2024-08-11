@@ -6,21 +6,6 @@
 
 unsigned int g_total_test_cases_count = 0;
 
-void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use() {
-    // Arrange
-    int ALLOC_SIZE = 10;
-
-    // Act
-    void *ptr = malloc(ALLOC_SIZE);
-
-    // Assert
-    AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
-
-    assert(((void **)LEDGER)[0] == ptr);
-    assert(metadata->in_use == TRUE);
-    assert(metadata->size == ALLOC_SIZE);
-}
-
 void when_allocating_0_bytes_then_LEDGER_should_be_unchanged() {
     // Arrange
     int ALLOC_SIZE = 0;
@@ -33,9 +18,25 @@ void when_allocating_0_bytes_then_LEDGER_should_be_unchanged() {
     assert(((void **)LEDGER)[0] == 0);
 }
 
+void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use() {
+    // Arrange
+    int ALLOC_SIZE = 10;
+
+    // Act
+    void *ptr = malloc(ALLOC_SIZE);
+
+    // Assert
+    AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
+
+    assert(ptr != NULL);
+    assert(((void **)LEDGER)[0] == ptr);
+    assert(metadata->in_use == TRUE);
+    assert(metadata->size == ALLOC_SIZE);
+}
+
 void when_freeing_10_bytes_then_LEDGER_should_mark_allocation_as_unused() {
     // Arrange
-    int ALLOC_SIZE = 42;
+    int ALLOC_SIZE = 10;
 
     // Act
     void *ptr = malloc(ALLOC_SIZE);
@@ -113,43 +114,43 @@ void when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain
 
     // Act + Assert (bc yes lel)
     free(ptrs[0]);
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0]));
-    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[1]));
-    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[2]));
-    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[3]));
-    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0])
+        && contains(LARGE_ALLOCS_LEDGER, ptrs[1])
+        && contains(LARGE_ALLOCS_LEDGER, ptrs[2])
+        && contains(LARGE_ALLOCS_LEDGER, ptrs[3])
+        && contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
 
     // Act + Assert (bc yes lel)
     free(ptrs[4]);
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0]));
-    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[1]));
-    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[2]));
-    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[3]));
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0])
+        && contains(LARGE_ALLOCS_LEDGER, ptrs[1])
+        && contains(LARGE_ALLOCS_LEDGER, ptrs[2])
+        && contains(LARGE_ALLOCS_LEDGER, ptrs[3])
+        && !contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
 
     // Act + Assert (bc yes lel)
     free(ptrs[2]);
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0]));
-    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[1]));
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[2]));
-    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[3]));
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0])
+        && contains(LARGE_ALLOCS_LEDGER, ptrs[1])
+        && !contains(LARGE_ALLOCS_LEDGER, ptrs[2])
+        && contains(LARGE_ALLOCS_LEDGER, ptrs[3])
+        && !contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
 
     // Act + Assert (bc yes lel)
     free(ptrs[1]);
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0]));
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[1]));
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[2]));
-    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[3]));
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0])
+        && !contains(LARGE_ALLOCS_LEDGER, ptrs[1])
+        && !contains(LARGE_ALLOCS_LEDGER, ptrs[2])
+        && contains(LARGE_ALLOCS_LEDGER, ptrs[3])
+        && !contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
 
     // Act + Assert (bc yes lel)
     free(ptrs[3]);
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0]));
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[1]));
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[2]));
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[3]));
-    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0])
+        && !contains(LARGE_ALLOCS_LEDGER, ptrs[1])
+        && !contains(LARGE_ALLOCS_LEDGER, ptrs[2])
+        && !contains(LARGE_ALLOCS_LEDGER, ptrs[3])
+        && !contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
 }
 
 void when_pointer_is_not_allocated_by_malloc_then_free_has_no_effect() {
