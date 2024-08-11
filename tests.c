@@ -101,6 +101,57 @@ void when_allocating_beyond_small_zone_threshold_then_allocation_should_be_regis
     }
 }
 
+void when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain_the_allocation_anymore() {
+    // Arrange
+    unsigned int LARGE_ALLOC_SIZES[5] = {5078, 93672, 258714, 5018920, 3742059};
+    void *ptrs[5];
+
+    // Act
+    for (int i = 0; i < 5; i++) {
+        ptrs[i] = malloc(LARGE_ALLOC_SIZES[i]);
+    }
+
+    // Act + Assert (bc yes lel)
+    free(ptrs[0]);
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0]));
+    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[1]));
+    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[2]));
+    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[3]));
+    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
+
+    // Act + Assert (bc yes lel)
+    free(ptrs[4]);
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0]));
+    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[1]));
+    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[2]));
+    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[3]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
+
+    // Act + Assert (bc yes lel)
+    free(ptrs[2]);
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0]));
+    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[1]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[2]));
+    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[3]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
+
+    // Act + Assert (bc yes lel)
+    free(ptrs[1]);
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[1]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[2]));
+    assert(contains(LARGE_ALLOCS_LEDGER, ptrs[3]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
+
+    // Act + Assert (bc yes lel)
+    free(ptrs[3]);
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[0]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[1]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[2]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[3]));
+    assert(!contains(LARGE_ALLOCS_LEDGER, ptrs[4]));
+}
+
 int main() {
 
     ft_putstr_fd(BOLD_YELLOW "INITIATING TESTS...\n\n\n" RESET, 1);
@@ -111,6 +162,7 @@ int main() {
     RUN_TEST_CASE(when_allocating_within_tiny_zone_threshold_then_allocation_should_be_registered_in_LEDGER);
     RUN_TEST_CASE(when_allocating_within_small_zone_threshold_then_allocation_should_be_registered_in_LEDGER);
     RUN_TEST_CASE(when_allocating_beyond_small_zone_threshold_then_allocation_should_be_registered_in_LARGE_ALLOCS_LEDGER);
+    RUN_TEST_CASE(when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain_the_allocation_anymore);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(g_total_test_cases_count, 1);
