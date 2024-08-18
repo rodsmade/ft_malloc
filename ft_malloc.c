@@ -39,6 +39,9 @@ void prologue() {
 	entry = (AllocationMetadata *) SMALL__ZONE;
 	entry->in_use = FALSE;
 	entry->size = 0;
+	ft_putstr_fd(">> small zone size: ", 2);
+	ft_putnbr_fd(get_small_zone_size(), 2);
+	ft_putchar_fd('\n', 2);
 
 	// LEDGER
 	// one page only

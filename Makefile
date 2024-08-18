@@ -28,10 +28,10 @@ fclean: clean
 	make --directory=./libft fclean
 	rm -f main.out
 
-main: $(LIBNAME) main.c
+main.out: $(LIBNAME) main.c
 	$(CC) main.c -g3 -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -L./libft -I./libft/include -lft -o main.out
 
-run: main
+run: main.out
 	./main.out
 
 val: main
