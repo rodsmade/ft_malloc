@@ -39,6 +39,12 @@ extern void *LARGE_ALLOCS_LEDGER;
 # define TRUE 1
 # define FALSE 0
 
+#if defined(__APPLE__) && defined(__MACH__)
+    # define PAGE_SIZE getpagesize()
+#else
+    # define PAGE_SIZE sysconf(_SC_PAGESIZE)
+#endif
+
 // Define the enum
 typedef enum {
 	TINY,
@@ -51,7 +57,7 @@ typedef char bool;
 static inline int get_tiny_zone_size() {
 	static int tiny_zone_size = 0;
 	if (tiny_zone_size == 0) {
-		tiny_zone_size = 4 * getpagesize();
+		tiny_zone_size = 4 * PAGE_SIZE;
 	}
 	return tiny_zone_size;
 }
@@ -59,7 +65,7 @@ static inline int get_tiny_zone_size() {
 static inline int get_small_zone_size() {
 	static int small_zone_size = 0;
 	if (small_zone_size == 0) {
-		small_zone_size = 100 * getpagesize();
+		small_zone_size = 100 * PAGE_SIZE;
 	}
 	return small_zone_size;
 }
@@ -67,7 +73,7 @@ static inline int get_small_zone_size() {
 static inline int get_ledger_size() {
 	static int ledger_size = 0;
 	if (ledger_size == 0) {
-		ledger_size = 1 * getpagesize();
+		ledger_size = 1 * PAGE_SIZE;
 	}
 	return ledger_size;
 }

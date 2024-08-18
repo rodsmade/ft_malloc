@@ -44,14 +44,14 @@ void prologue() {
 	// one page only
 	LEDGER = mmap(NULL, get_ledger_size(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 	unsigned long i = -1;
-	while (++i < getpagesize() / sizeof(void *))
+	while (++i < PAGE_SIZE / sizeof(void *))
 		((void **)LEDGER)[i] = NULL;
 
 	// LARGE LEDGER
 	// one page only
 	LARGE_ALLOCS_LEDGER = mmap(NULL, get_ledger_size(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 	i = -1;
-	while (++i < getpagesize() / sizeof(void *))
+	while (++i < PAGE_SIZE / sizeof(void *))
 		((void **)LARGE_ALLOCS_LEDGER)[i] = NULL;
 }
 
