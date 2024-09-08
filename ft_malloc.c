@@ -21,6 +21,15 @@ void *LARGE__ZONE = NULL;
 void *LEDGER = NULL;
 void *LARGE_ALLOCS_LEDGER = NULL;
 
+void *safe_mmap(int size) {
+	void *allocation = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	if (allocation == MAP_FAILED) {
+		perror("call to mmap failed");
+		exit(EXIT_FAILURE);
+	}
+	return (allocation);
+}
+
 // Constructor function
 __attribute__((constructor))
 void prologue() {
@@ -28,28 +37,28 @@ void prologue() {
 
 	// alloc TINY zone
 	// initially one page only
-	TINY__ZONE = mmap(NULL, get_tiny_zone_size(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	TINY__ZONE = safe_mmap(get_tiny_zone_size());
 	entry = (AllocationMetadata *) TINY__ZONE;
 	entry->in_use = FALSE;
 	entry->size = 0;
 
 	// alloc SMALL zone
 	// initially one page only
-	SMALL__ZONE = mmap(NULL, get_small_zone_size(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	SMALL__ZONE = safe_mmap(get_small_zone_size());
 	entry = (AllocationMetadata *) SMALL__ZONE;
 	entry->in_use = FALSE;
 	entry->size = 0;
 
 	// LEDGER
 	// one page only
-	LEDGER = mmap(NULL, get_ledger_size(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	LEDGER = safe_mmap(get_ledger_size());
 	unsigned long i = -1;
 	while (++i < PAGE_SIZE / sizeof(void *))
 		((void **)LEDGER)[i] = NULL;
 
 	// LARGE LEDGER
 	// one page only
-	LARGE_ALLOCS_LEDGER = mmap(NULL, get_ledger_size(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+	LARGE_ALLOCS_LEDGER = safe_mmap(get_ledger_size());
 	i = -1;
 	while (++i < PAGE_SIZE / sizeof(void *))
 		((void **)LARGE_ALLOCS_LEDGER)[i] = NULL;
@@ -118,13 +127,13 @@ void	*malloc(size_t size)
 	if (size > TINY_ZONE_THRESHOLD && size <= SMALL_ZONE_THRESHOLD)
 		ptr = allocate_ptr(size, SMALL);
 	if (size > SMALL_ZONE_THRESHOLD) {
-		void *chunk = mmap(NULL, size + sizeof(LargeAllocationMetadata), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+		void *chunk = safe_mmap(size + sizeof(LargeAllocationMetadata));
+
 		// Fills in metadata
 		((LargeAllocationMetadata *) chunk)->size = size;
 
-		ptr = (void *) chunk + sizeof(LargeAllocationMetadata);
-
 		// Push pointer to LARGE_ALLOCS_LEDGER
+		ptr = (void *) chunk + sizeof(LargeAllocationMetadata);
 		LARGE_ALLOCS_LEDGER = push_to_back(LARGE_ALLOCS_LEDGER, ptr);
 	}
 	return (ptr);
