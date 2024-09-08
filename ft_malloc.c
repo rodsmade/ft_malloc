@@ -17,6 +17,7 @@
 void *TINY__ZONE = NULL;
 void *SMALL__ZONE = NULL;
 void *LARGE__ZONE = NULL;
+size_t zones_capacity[3];
 
 void *LEDGER = NULL;
 void *LARGE_ALLOCS_LEDGER = NULL;
@@ -41,6 +42,7 @@ void prologue() {
 	entry = (AllocationMetadata *) TINY__ZONE;
 	entry->in_use = FALSE;
 	entry->size = 0;
+	zones_capacity[TINY] = get_tiny_zone_size();
 
 	// alloc SMALL zone
 	// initially one page only
@@ -48,6 +50,7 @@ void prologue() {
 	entry = (AllocationMetadata *) SMALL__ZONE;
 	entry->in_use = FALSE;
 	entry->size = 0;
+	zones_capacity[SMALL] = get_small_zone_size();
 
 	// LEDGER
 	// one page only
@@ -99,7 +102,11 @@ void	*allocate_ptr(size_t size, e_zone zone) {
 				return NULL; break;
 	}
 	AllocationMetadata *entry = zone_start;
+	size_t current_allocated_size = 0;
 	while (entry->in_use) {
+		current_allocated_size += entry->size + sizeof(AllocationMetadata);
+		if (current_allocated_size + size > zones_capacity[zone])
+			return (NULL);
 		entry = (void *) entry + sizeof(AllocationMetadata) + entry->size;
 	}
 	// Marks memory chunk as used, next chunk as unused
