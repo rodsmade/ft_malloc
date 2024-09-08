@@ -282,6 +282,25 @@ void when_allocating_100_allocations_of_each_zone_at_once_then_malloc_should_beh
         free(large_allocs[i]);
 }
 
+void when_allocating_beyond_maximum_capacity_for_TINY_ZONE_then_malloc_should_return_NULL() {
+    // Arrange
+    void *allocs[1000];
+
+    // Act
+    for (int i = 0; i < 1000; i++) {
+        allocs[i] = malloc(TINY_ZONE_THRESHOLD);
+    }
+
+    // Assert
+    bool rest_is_null = TRUE;
+    for (int i = 120; i < 1000; i++) {
+        rest_is_null = rest_is_null && (allocs[i] == NULL);
+    }
+
+    assert(count_ledger_entries(LEDGER)== 120);
+    assert(rest_is_null);
+}
+
 int main() {
 
     ft_putstr_fd(BOLD_YELLOW "INITIATING TESTS...\n\n\n" RESET, 1);
@@ -296,6 +315,7 @@ int main() {
     RUN_TEST_CASE(when_allocating_100_allocations_in_SMALL_ZONE_then_malloc_should_behave_OK);
     RUN_TEST_CASE(when_allocating_100_allocations_in_LARGE_ZONE_then_malloc_should_behave_OK);
     RUN_TEST_CASE(when_allocating_100_allocations_of_each_zone_at_once_then_malloc_should_behave_OK);
+    RUN_TEST_CASE(when_allocating_beyond_maximum_capacity_for_TINY_ZONE_then_malloc_should_return_NULL);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(g_total_test_cases_count, 1);

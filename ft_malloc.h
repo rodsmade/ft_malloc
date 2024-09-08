@@ -65,7 +65,7 @@ static inline int get_tiny_zone_size() {
 static inline int get_small_zone_size() {
 	static int small_zone_size = 0;
 	if (small_zone_size == 0) {
-		small_zone_size = 100 * PAGE_SIZE;
+		small_zone_size = 101 * PAGE_SIZE;
 	}
 	return small_zone_size;
 }
