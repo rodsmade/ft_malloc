@@ -91,7 +91,7 @@ void	*allocate_ptr(size_t size, e_zone zone) {
 	}
 	AllocationMetadata *entry = zone_start;
 	while (entry->in_use) {
-		entry += sizeof(AllocationMetadata) + entry->size;
+		entry = (void *) entry + sizeof(AllocationMetadata) + entry->size;
 	}
 	// Marks memory chunk as used, next chunk as unused
 	entry->in_use = TRUE;
@@ -112,7 +112,7 @@ void	*malloc(size_t size)
 	void *ptr = NULL;
 
 	if (!size || size > get_max_rlimit_data())
-		return (NULL);
+		return ptr;
 	if (size <= TINY_ZONE_THRESHOLD)
 		ptr = allocate_ptr(size, TINY);
 	if (size > TINY_ZONE_THRESHOLD && size <= SMALL_ZONE_THRESHOLD)
