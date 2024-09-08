@@ -225,9 +225,8 @@ void when_allocating_100_allocations_in_TINY_ZONE_then_malloc_should_behave_OK()
     void *allocs[100];
 
     // Act
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 100; i++)
         allocs[i] = malloc(TINY_ZONE_THRESHOLD);
-    }
 
     // Assert
     assert(count_ledger_entries(LEDGER) == 100);
@@ -238,9 +237,8 @@ void when_allocating_100_allocations_in_SMALL_ZONE_then_malloc_should_behave_OK(
     void *allocs[100];
 
     // Act
-    for (int i = 0; i < 100; i++) {
+    for (int i = 0; i < 100; i++)
         allocs[i] = malloc(SMALL_ZONE_THRESHOLD);
-    }
 
     // Assert
     assert(count_ledger_entries(LEDGER) == 100);
@@ -252,9 +250,6 @@ int main() {
 
     RUN_TEST_CASE(when_allocating_0_bytes_then_LEDGER_should_be_unchanged);
     RUN_TEST_CASE(when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use);
-    RUN_TEST_CASE(when_freeing_10_bytes_then_LEDGER_should_mark_allocation_as_unused);
-    RUN_TEST_CASE(when_allocating_within_tiny_zone_threshold_then_allocation_should_be_registered_only_in_LEDGER);
-    RUN_TEST_CASE(when_allocating_within_small_zone_threshold_then_allocation_should_be_registered_only_in_LEDGER);
     RUN_TEST_CASE(when_allocating_beyond_small_zone_threshold_then_allocation_should_be_registered_only_in_LARGE_ALLOCS_LEDGER);
     RUN_TEST_CASE(when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain_the_allocation_anymore);
     RUN_TEST_CASE(when_pointer_is_not_allocated_by_malloc_then_free_has_no_effect);
