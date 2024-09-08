@@ -134,14 +134,15 @@ void	*malloc(size_t size)
 	if (size > TINY_ZONE_THRESHOLD && size <= SMALL_ZONE_THRESHOLD)
 		ptr = allocate_ptr(size, SMALL);
 	if (size > SMALL_ZONE_THRESHOLD) {
-		void *chunk = safe_mmap(size + sizeof(LargeAllocationMetadata));
+		void *chunk = mmap(NULL, size + sizeof(LargeAllocationMetadata), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
+		if (chunk) {
+			// Fills in metadata
+			((LargeAllocationMetadata *) chunk)->size = size;
 
-		// Fills in metadata
-		((LargeAllocationMetadata *) chunk)->size = size;
-
-		// Push pointer to LARGE_ALLOCS_LEDGER
-		ptr = (void *) chunk + sizeof(LargeAllocationMetadata);
-		LARGE_ALLOCS_LEDGER = push_to_back(LARGE_ALLOCS_LEDGER, ptr);
+			// Push pointer to LARGE_ALLOCS_LEDGER
+			ptr = (void *) chunk + sizeof(LargeAllocationMetadata);
+			LARGE_ALLOCS_LEDGER = push_to_back(LARGE_ALLOCS_LEDGER, ptr);
+		}
 	}
 	return (ptr);
 }
@@ -155,21 +156,18 @@ void	free(void *ptr)
 	int i = -1;
 	while (((void **)LEDGER)[++i]) {
 		if (((void **)LEDGER)[i] == ptr) {
-			// ft_putstr_fd("[DEBUG] tá no LEDGER\n", 1);
 			// dar free
 			AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
 			metadata->in_use = FALSE;
 			return ;
 		}
 	}
-	// ft_putstr_fd("[DEBUG] Não tá no LEDGER\n", 1);
 
 	// checar se o ptr passado tá no LARGE_ALLOCS_LEDGER
 	i = -1;
 	while (((void **)LARGE_ALLOCS_LEDGER)[++i]) {
 		if (((void **)LARGE_ALLOCS_LEDGER)[i] == ptr) {
 			// dar free
-			// ft_putstr_fd("[DEBUG] tá no LARGE_ALLOCS_LEDGER\n", 1);
 			void *allocation_head = (void *)ptr - sizeof(LargeAllocationMetadata);
 			size_t alloc_size = ((LargeAllocationMetadata *)allocation_head)->size;
 
@@ -182,7 +180,6 @@ void	free(void *ptr)
 			return ;
 		}
 	}
-	// ft_putstr_fd("[DEBUG] Não tá no LARGE_ALLOCS_LEDGER\n", 1);
 
 	// // o ptr passado não é uma alocação que consta no meu Ledger.
 	ft_putstr_fd("Free in invalid pointer\n", 2);
@@ -269,4 +266,12 @@ void epilogue() __attribute__((destructor));
 void epilogue() {
 	munmap(TINY__ZONE, get_tiny_zone_size());
 	munmap(SMALL__ZONE, get_small_zone_size());
+
+	// Go through large allocs ledgers and unmap
+	for (int i = 0; ((void **)LARGE_ALLOCS_LEDGER)[i]; i++) {
+		void *ptr = ((void **)LARGE_ALLOCS_LEDGER)[i];
+		void *allocation_head = (void *)ptr - sizeof(LargeAllocationMetadata);
+		size_t alloc_size = ((LargeAllocationMetadata *)allocation_head)->size;
+		munmap(ptr, alloc_size);
+	}
 }
