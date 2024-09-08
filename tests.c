@@ -211,13 +211,26 @@ void when_pointer_is_not_allocated_by_malloc_then_free_has_no_effect() {
 void when_allocating_MAX_SIZET_then_malloc_should_return_NULL() {
     // Arrange
     void *ptr;
-    size_t large_size = (size_t) -1;
+    size_t large_size = ~((size_t) 0);
 
     // Act
     ptr = malloc(large_size);
 
     // Assert
     assert(ptr == NULL);
+}
+
+void when_allocating_100_allocations_in_TINY_ZONE_then_malloc_should_behave_OK() {
+    // Arrange
+    void *allocs[100];
+
+    // Act
+    for (int i = 0; i < 100; i++) {
+        allocs[i] = malloc(TINY_ZONE_THRESHOLD);
+    }
+
+    // Assert
+    assert(count_ledger_entries(LEDGER) == 100);
 }
 
 int main() {
@@ -233,6 +246,7 @@ int main() {
     RUN_TEST_CASE(when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain_the_allocation_anymore);
     RUN_TEST_CASE(when_pointer_is_not_allocated_by_malloc_then_free_has_no_effect);
     RUN_TEST_CASE(when_allocating_MAX_SIZET_then_malloc_should_return_NULL);
+    RUN_TEST_CASE(when_allocating_100_allocations_in_TINY_ZONE_then_malloc_should_behave_OK);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(g_total_test_cases_count, 1);

@@ -19,6 +19,15 @@ bool contains(void *array, void *ptr) {
     return FALSE;
 }
 
+size_t count_ledger_entries(void *ledger) {
+    void **pivot = ledger;
+    size_t count = 0;
+    for (size_t i = 0; pivot[i]; i++) {
+        count++;
+    }
+    return (count);
+}
+
 void print_test_index(unsigned int index) {
     ft_putstr_fd(BOLD_YELLOW "[", 1);
     ft_putnbr_fd(index, 1);

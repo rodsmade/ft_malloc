@@ -24,11 +24,12 @@ typedef void (*TestFunction)();
 #define RUN_TEST_CASE(test_func) run_test_case(test_func, #test_func)
 
 // Prototypes
-void assert(int comparison);
-bool contains(void *array, void *ptr);
-void perror_exit(int condition, const char* err_msg);
-void print_test_index(unsigned int index);
-void print_test_name(const char *test_name);
-void run_test_case(TestFunction test_func, const char *test_name);
+void    assert(int comparison);
+bool    contains(void *array, void *ptr);
+void    perror_exit(int condition, const char* err_msg);
+void    print_test_index(unsigned int index);
+void    print_test_name(const char *test_name);
+size_t  count_ledger_entries(void *ledger);
+void    run_test_case(TestFunction test_func, const char *test_name);
 
 #endif
