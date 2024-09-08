@@ -233,6 +233,19 @@ void when_allocating_100_allocations_in_TINY_ZONE_then_malloc_should_behave_OK()
     assert(count_ledger_entries(LEDGER) == 100);
 }
 
+void when_allocating_100_allocations_in_SMALL_ZONE_then_malloc_should_behave_OK() {
+    // Arrange
+    void *allocs[100];
+
+    // Act
+    for (int i = 0; i < 100; i++) {
+        allocs[i] = malloc(SMALL_ZONE_THRESHOLD);
+    }
+
+    // Assert
+    assert(count_ledger_entries(LEDGER) == 100);
+}
+
 int main() {
 
     ft_putstr_fd(BOLD_YELLOW "INITIATING TESTS...\n\n\n" RESET, 1);
@@ -247,6 +260,7 @@ int main() {
     RUN_TEST_CASE(when_pointer_is_not_allocated_by_malloc_then_free_has_no_effect);
     RUN_TEST_CASE(when_allocating_MAX_SIZET_then_malloc_should_return_NULL);
     RUN_TEST_CASE(when_allocating_100_allocations_in_TINY_ZONE_then_malloc_should_behave_OK);
+    RUN_TEST_CASE(when_allocating_100_allocations_in_SMALL_ZONE_then_malloc_should_behave_OK);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(g_total_test_cases_count, 1);
