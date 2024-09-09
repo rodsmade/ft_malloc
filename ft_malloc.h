@@ -90,8 +90,8 @@ static inline size_t get_max_rlimit_data() {
 
 // DATA STRUCTURES
 typedef struct AllocationMetadata {
-	char	in_use;
-	int		size;
+	char		in_use;
+	size_t		size;
 } AllocationMetadata;
 
 typedef struct LargeAllocationMetadata {

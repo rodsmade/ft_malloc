@@ -20,7 +20,7 @@ void when_allocating_0_bytes_then_LEDGER_should_be_unchanged() {
 
 void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use() {
     // Arrange
-    int ALLOC_SIZE = 10;
+    size_t ALLOC_SIZE = 10;
 
     // Act
     void *ptr = malloc(ALLOC_SIZE);
@@ -36,7 +36,7 @@ void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_
 
 void when_freeing_10_bytes_then_LEDGER_should_mark_allocation_as_unused() {
     // Arrange
-    int ALLOC_SIZE = 10;
+    size_t ALLOC_SIZE = 10;
 
     // Act
     void *ptr = malloc(ALLOC_SIZE);
@@ -293,12 +293,29 @@ void when_allocating_beyond_maximum_capacity_for_TINY_ZONE_then_malloc_should_re
 
     // Assert
     bool rest_is_null = TRUE;
-    for (int i = 120; i < 1000; i++) {
+    for (int i = 113; i < 1000; i++) {
         rest_is_null = rest_is_null && (allocs[i] == NULL);
     }
-
-    assert(count_ledger_entries(LEDGER)== 120);
+    assert(count_ledger_entries(LEDGER) == 113);
     assert(rest_is_null);
+}
+
+void when_full_capacity_was_reached_and_some_pointers_are_freed_then_malloc_should_reuse_old_chunks() {
+    // Arrange
+    void *allocs[113];
+
+    // Act
+    for (int i = 0; i < 113; i++) {
+        allocs[i] = malloc(TINY_ZONE_THRESHOLD);
+    }
+    free(allocs[42]);
+
+    void *new_ptr = malloc(TINY_ZONE_THRESHOLD);
+
+    // Assert
+    assert(!contains(LEDGER, allocs[42]));
+    assert(contains(LEDGER, new_ptr));
+    assert(count_ledger_entries(LEDGER) == 113);
 }
 
 int main() {
@@ -316,6 +333,7 @@ int main() {
     RUN_TEST_CASE(when_allocating_100_allocations_in_LARGE_ZONE_then_malloc_should_behave_OK);
     RUN_TEST_CASE(when_allocating_100_allocations_of_each_zone_at_once_then_malloc_should_behave_OK);
     RUN_TEST_CASE(when_allocating_beyond_maximum_capacity_for_TINY_ZONE_then_malloc_should_return_NULL);
+    RUN_TEST_CASE(when_full_capacity_was_reached_and_some_pointers_are_freed_then_malloc_should_reuse_old_chunks);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(g_total_test_cases_count, 1);

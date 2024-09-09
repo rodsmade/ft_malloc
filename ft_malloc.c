@@ -104,17 +104,22 @@ void	*allocate_ptr(size_t size, e_zone zone) {
 	AllocationMetadata *entry = zone_start;
 	size_t current_allocated_size = 0;
 	while (entry->in_use) {
+		// Checks for available space
 		current_allocated_size += entry->size + sizeof(AllocationMetadata);
 		if (current_allocated_size + size > zones_capacity[zone])
 			return (NULL);
+
 		entry = (void *) entry + sizeof(AllocationMetadata) + entry->size;
+
+		// Checks for the possibility to reuse previously allocated chunks
+		if (!entry->in_use && entry->size >= size) {
+			entry->in_use = TRUE;
+			return ((void *) entry + sizeof(AllocationMetadata));
+		}
 	}
-	// Marks memory chunk as used, next chunk as unused
+	// Marks memory chunk as used
 	entry->in_use = TRUE;
 	entry->size = size;
-	// aqui potencialmente pode dar ruim qnd chegar no final da tiny/página
-	AllocationMetadata *next_entry = (void *) entry + sizeof(AllocationMetadata) + size;
-	next_entry->in_use = FALSE;
 
 	void *ptr = (void *) entry + sizeof(AllocationMetadata);
 
@@ -159,6 +164,7 @@ void	free(void *ptr)
 			// dar free
 			AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
 			metadata->in_use = FALSE;
+			pop(LEDGER, ptr);
 			return ;
 		}
 	}
