@@ -300,7 +300,43 @@ void when_allocating_beyond_maximum_capacity_for_TINY_ZONE_then_malloc_should_re
     assert(rest_is_null);
 }
 
-void when_full_capacity_was_reached_and_some_pointers_are_freed_then_malloc_should_reuse_old_chunks() {
+void when_allocating_beyond_maximum_capacity_for_SMALL_ZONE_then_malloc_should_return_NULL() {
+    // Arrange
+    void *allocs[1000];
+
+    // Act
+    for (int i = 0; i < 1000; i++) {
+        allocs[i] = malloc(SMALL_ZONE_THRESHOLD);
+    }
+
+    // Assert
+    bool rest_is_null = TRUE;
+    for (int i = 100; i < 1000; i++) {
+        rest_is_null = rest_is_null && (allocs[i] == NULL);
+    }
+    assert(count_ledger_entries(LEDGER) == 100); // 100 = max SMALL_ZONE capacity
+    assert(rest_is_null);
+}
+
+void when_TINY_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry() {
+    // Arrange
+    void *allocs[113]; // 113 = max TINY_ZONE capacity
+
+    // Act
+    for (int i = 0; i < 113; i++) {
+        allocs[i] = malloc(TINY_ZONE_THRESHOLD);
+    }
+    free(allocs[42]);
+
+    void *new_ptr = malloc(TINY_ZONE_THRESHOLD);
+
+    // Assert
+    assert(new_ptr == allocs[42]);
+    assert(contains(LEDGER, new_ptr));
+    assert(count_ledger_entries(LEDGER) == 113);
+}
+
+void when_SMALL_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry() {
     // Arrange
     void *allocs[113]; // 113 = max tiny zone capacity
 
@@ -333,7 +369,9 @@ int main() {
     RUN_TEST_CASE(when_allocating_100_allocations_in_LARGE_ZONE_then_malloc_should_behave_OK);
     RUN_TEST_CASE(when_allocating_100_allocations_of_each_zone_at_once_then_malloc_should_behave_OK);
     RUN_TEST_CASE(when_allocating_beyond_maximum_capacity_for_TINY_ZONE_then_malloc_should_return_NULL);
-    RUN_TEST_CASE(when_full_capacity_was_reached_and_some_pointers_are_freed_then_malloc_should_reuse_old_chunks);
+    RUN_TEST_CASE(when_allocating_beyond_maximum_capacity_for_SMALL_ZONE_then_malloc_should_return_NULL);
+    RUN_TEST_CASE(when_TINY_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry);
+    RUN_TEST_CASE(when_SMALL_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(g_total_test_cases_count, 1);
