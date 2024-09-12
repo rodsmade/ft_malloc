@@ -302,7 +302,7 @@ void when_allocating_beyond_maximum_capacity_for_TINY_ZONE_then_malloc_should_re
 
 void when_full_capacity_was_reached_and_some_pointers_are_freed_then_malloc_should_reuse_old_chunks() {
     // Arrange
-    void *allocs[113];
+    void *allocs[113]; // 113 = max tiny zone capacity
 
     // Act
     for (int i = 0; i < 113; i++) {
@@ -313,7 +313,7 @@ void when_full_capacity_was_reached_and_some_pointers_are_freed_then_malloc_shou
     void *new_ptr = malloc(TINY_ZONE_THRESHOLD);
 
     // Assert
-    assert(!contains(LEDGER, allocs[42]));
+    assert(new_ptr == allocs[42]);
     assert(contains(LEDGER, new_ptr));
     assert(count_ledger_entries(LEDGER) == 113);
 }

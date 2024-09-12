@@ -113,8 +113,7 @@ void	*allocate_ptr(size_t size, e_zone zone) {
 
 		// Checks for the possibility to reuse previously allocated chunks
 		if (!entry->in_use && entry->size >= size) {
-			entry->in_use = TRUE;
-			return ((void *) entry + sizeof(AllocationMetadata));
+			break ;
 		}
 	}
 	// Marks memory chunk as used
