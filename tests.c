@@ -374,6 +374,9 @@ int main() {
     RUN_TEST_CASE(when_allocating_0_bytes_then_LEDGER_should_contain_an_allocation);
     RUN_TEST_CASE(when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK);
     RUN_TEST_CASE(when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use);
+    RUN_TEST_CASE(when_freeing_10_bytes_then_LEDGER_allocation_should_be_marked_as_unused);
+    RUN_TEST_CASE(when_allocating_within_tiny_zone_threshold_then_allocation_should_be_registered_only_in_LEDGER);
+    RUN_TEST_CASE(when_allocating_within_small_zone_threshold_then_allocation_should_be_registered_only_in_LEDGER);
     RUN_TEST_CASE(when_allocating_beyond_small_zone_threshold_then_allocation_should_be_registered_only_in_LARGE_ALLOCS_LEDGER);
     RUN_TEST_CASE(when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain_the_allocation_anymore);
     RUN_TEST_CASE(when_pointer_is_not_allocated_by_malloc_then_free_has_no_effect);
