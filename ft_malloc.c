@@ -131,7 +131,7 @@ void	*malloc(size_t size)
 {
 	void *ptr = NULL;
 
-	if (!size || size > get_max_rlimit_data())
+	if (size > get_max_rlimit_data())
 		return ptr;
 	if (size <= TINY_ZONE_THRESHOLD)
 		ptr = allocate_ptr(size, TINY);

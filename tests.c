@@ -6,7 +6,7 @@
 
 unsigned int g_total_test_cases_count = 0;
 
-void when_allocating_0_bytes_then_LEDGER_should_be_unchanged() {
+void when_allocating_0_bytes_then_LEDGER_should_contain_an_allocation() {
     // Arrange
     int ALLOC_SIZE = 0;
 
@@ -14,8 +14,21 @@ void when_allocating_0_bytes_then_LEDGER_should_be_unchanged() {
     void *ptr = malloc(ALLOC_SIZE);
 
     // Assert
-    assert(ptr == NULL);
-    assert(((void **)LEDGER)[0] == 0);
+    assert(ptr != NULL);
+    assert(count_ledger_entries(LEDGER) == 1);
+}
+
+void when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK() {
+    // Arrange
+    int ALLOC_SIZE = 0;
+
+    // Act
+    void *ptr = malloc(ALLOC_SIZE);
+    free(ptr);
+
+    // Assert
+    assert(count_ledger_entries(LEDGER) == 0);
+
 }
 
 void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use() {
@@ -358,7 +371,8 @@ int main() {
 
     ft_putstr_fd(BOLD_YELLOW "INITIATING TESTS...\n\n\n" RESET, 1);
 
-    RUN_TEST_CASE(when_allocating_0_bytes_then_LEDGER_should_be_unchanged);
+    RUN_TEST_CASE(when_allocating_0_bytes_then_LEDGER_should_contain_an_allocation);
+    RUN_TEST_CASE(when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK);
     RUN_TEST_CASE(when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use);
     RUN_TEST_CASE(when_allocating_beyond_small_zone_threshold_then_allocation_should_be_registered_only_in_LARGE_ALLOCS_LEDGER);
     RUN_TEST_CASE(when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain_the_allocation_anymore);
