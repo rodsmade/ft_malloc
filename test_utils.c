@@ -10,8 +10,6 @@ void assert(int comparison) {
 }
 
 bool contains(void *array, void *ptr) {
-    (void) array;
-    (void) ptr;
     for (int i = 0; ((void **)array)[i]; i++) {
         if (((void **)array)[i] == ptr)
             return TRUE;

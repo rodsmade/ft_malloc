@@ -371,6 +371,107 @@ void when_SMALL_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_sh
     assert(count_ledger_entries(LEDGER) == 100);
 }
 
+void when_passing_NULL_to_realloc_then_realloc_should_return_a_pointer_and_produce_no_frees() {
+    // Arrange
+    void *ptr = malloc(42);
+    (void) ptr;
+
+    // Act
+    void *rptr = realloc(NULL, 420);
+    void *rptr2 = realloc(NULL, 0);
+
+    // Assert
+    assert(rptr != NULL);
+    assert(rptr2 != NULL);
+    assert(count_ledger_entries(LEDGER) == 3);
+}
+
+void when_passing_ptr_and_0_to_realloc_then_realloc_should_free_ptr_and_return_NULL() {
+    // Arrange
+    void *ptr = malloc(42);
+
+    // Act
+    void *rptr = realloc(ptr, 0);
+
+    // Assert
+    assert(rptr == NULL);
+    assert(count_ledger_entries(LEDGER) == 0);
+}
+
+void when_passing_new_size_equal_to_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer() {
+    // Arrange
+    void *ptr = malloc(42);
+
+    // Act
+    void *rptr = realloc(ptr, 42);
+
+    // Assert
+    assert(rptr == ptr); // se justifica pelo reuso
+    assert(count_ledger_entries(LEDGER) == 1);
+}
+
+void when_passing_new_size_smaller_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer() {
+    // Arrange
+    void *ptr = malloc(42);
+
+    // Act
+    void *rptr = realloc(ptr, 4);
+
+    // Assert
+    assert(rptr == ptr); // se justifica pelo reuso
+    assert(count_ledger_entries(LEDGER) == 1);
+}
+
+void when_passing_new_size_greater_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer() {
+    // Arrange
+    void *ptr = malloc(42);
+
+    // Act
+    void *rptr = realloc(ptr, 420);
+
+    // Assert
+    assert(rptr != ptr);
+    assert(count_ledger_entries(LEDGER) == 1);
+}
+
+void when_pointer_has_not_been_previously_allocated_then_free_has_no_effect_and_realloc_returns_NULL() {
+    // Arrange
+    void *random_ptr = (void *) 0x123456;
+    char *expected_err_msg = "Free in invalid pointer\n";
+    char buffer[100] = {0};
+
+    //  Temporarily redirect STD_ERR to temporary test file
+    int stderr_fd_backup = dup(STDERR_FILENO); perror_exit(stderr_fd_backup, "dup");
+
+    char *test_file_name = "test_file";
+    int temp_test_fd = open(test_file_name, O_RDWR | O_CREAT | O_TRUNC, 0644); perror_exit(temp_test_fd, "open");
+
+    perror_exit(dup2(temp_test_fd, STDERR_FILENO), "dup2");
+
+    // Act
+    void *ptr = realloc(random_ptr, 42);
+
+    //  Restores STD_ERR
+    perror_exit(dup2(stderr_fd_backup, STDERR_FILENO), "dup2");
+
+    // Close file descriptors
+    close(stderr_fd_backup);
+    close(temp_test_fd);
+
+    // Assert
+    // Read contents of temporary test file into buffer
+    temp_test_fd = open(test_file_name, O_RDONLY); perror_exit(temp_test_fd, "open");
+
+    ssize_t bytes_read = read(temp_test_fd, buffer, 100); perror_exit(bytes_read, "read");
+
+    assert(ft_strncmp(expected_err_msg, buffer, ft_strlen(expected_err_msg) + 1) == 0);
+    assert(ptr == NULL);
+
+    // Cleanup
+    close(temp_test_fd);
+    remove(test_file_name);
+}
+
 int main() {
 
     ft_putstr_fd(BOLD_YELLOW "INITIATING TESTS...\n\n\n" RESET, 1);
@@ -393,6 +494,12 @@ int main() {
     RUN_TEST_CASE(when_allocating_beyond_maximum_capacity_for_SMALL_ZONE_then_malloc_should_return_NULL);
     RUN_TEST_CASE(when_TINY_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry);
     RUN_TEST_CASE(when_SMALL_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry);
+    RUN_TEST_CASE(when_passing_NULL_to_realloc_then_realloc_should_return_a_pointer_and_produce_no_frees);
+    RUN_TEST_CASE(when_passing_ptr_and_0_to_realloc_then_realloc_should_free_ptr_and_return_NULL);
+    RUN_TEST_CASE(when_passing_new_size_equal_to_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
+    RUN_TEST_CASE(when_passing_new_size_smaller_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
+    RUN_TEST_CASE(when_passing_new_size_greater_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
+    RUN_TEST_CASE(when_pointer_has_not_been_previously_allocated_then_free_has_no_effect_and_realloc_returns_NULL);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(g_total_test_cases_count, 1);

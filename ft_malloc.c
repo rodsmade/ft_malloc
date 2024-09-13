@@ -151,6 +151,14 @@ void	*malloc(size_t size)
 	return (ptr);
 }
 
+bool contains(void *array, void *ptr) {
+    for (int i = 0; ((void **)array)[i]; i++) {
+        if (((void **)array)[i] == ptr)
+            return TRUE;
+    }
+    return FALSE;
+}
+
 void	free(void *ptr)
 {
 	if (!ptr)
@@ -193,9 +201,25 @@ void	free(void *ptr)
 
 void	*realloc(void *ptr, size_t size)
 {
-	(void) ptr;
-	(void) size;
-	return (NULL);
+	void *rptr = NULL;
+
+	if (ptr && !size)
+		free(ptr);
+
+	if (!ptr) {
+		rptr = malloc(size);
+	}
+
+	if (ptr && size) {
+		if (contains(LEDGER, ptr) || contains(LARGE_ALLOCS_LEDGER, ptr)) {
+			free(ptr);
+			rptr = malloc(size);
+		} else {
+			free(ptr);
+		}
+	}
+
+	return (rptr);
 }
 
 void show_alloc_mem()
