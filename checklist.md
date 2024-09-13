@@ -1,7 +1,7 @@
 # TODO BEFORE HANDING IN THIS GODDAMN PROJECT
 
-- [-] Lógica de reaproveitar espaços da small e tiny zones
-- [ ] Realloc
+- [x] Realloc
+- [x] Lógica de reaproveitar espaços da small e tiny zones
 - [x] If there is an error, the malloc() et realloc() functions return a NULL pointer.
 - [x] verificar se vai dar pau quando estourar o tamanho das zonas (por conta daquele 1 byte de true/false)
 - [x] write tests for your own and also to help evaluators
