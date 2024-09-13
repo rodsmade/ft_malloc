@@ -8,7 +8,7 @@ unsigned int g_total_test_cases_count = 0;
 
 void when_allocating_0_bytes_then_LEDGER_should_contain_an_allocation() {
     // Arrange
-    int ALLOC_SIZE = 0;
+    size_t ALLOC_SIZE = 0;
 
     // Act
     void *ptr = malloc(ALLOC_SIZE);
@@ -16,11 +16,14 @@ void when_allocating_0_bytes_then_LEDGER_should_contain_an_allocation() {
     // Assert
     assert(ptr != NULL);
     assert(count_ledger_entries(LEDGER) == 1);
+    assert(((void **) LEDGER)[0] == ptr);
+    assert(((AllocationMetadata *)TINY__ZONE)->size == ALLOC_SIZE
+        && ((AllocationMetadata *)TINY__ZONE)->in_use == TRUE);
 }
 
 void when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK() {
     // Arrange
-    int ALLOC_SIZE = 0;
+    size_t ALLOC_SIZE = 0;
 
     // Act
     void *ptr = malloc(ALLOC_SIZE);
@@ -28,7 +31,8 @@ void when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK() {
 
     // Assert
     assert(count_ledger_entries(LEDGER) == 0);
-
+    assert(((AllocationMetadata *)TINY__ZONE)->size == ALLOC_SIZE
+        && ((AllocationMetadata *)TINY__ZONE)->in_use == FALSE);
 }
 
 void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use() {
@@ -42,12 +46,12 @@ void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_
     AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
 
     assert(ptr != NULL);
-    assert(((void **)LEDGER)[0] == ptr);
+    assert(((void **) LEDGER)[0] == ptr);
     assert(metadata->in_use == TRUE);
     assert(metadata->size == ALLOC_SIZE);
 }
 
-void when_freeing_10_bytes_then_LEDGER_should_mark_allocation_as_unused() {
+void when_freeing_10_bytes_then_LEDGER_allocation_should_be_marked_as_unused() {
     // Arrange
     size_t ALLOC_SIZE = 10;
 
@@ -56,9 +60,9 @@ void when_freeing_10_bytes_then_LEDGER_should_mark_allocation_as_unused() {
     free(ptr);
 
     // Assert
-    AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
+    AllocationMetadata *metadata = TINY__ZONE;
 
-    assert(((void **)LEDGER)[0] == ptr);
+    assert(count_ledger_entries(LEDGER) == 0);
     assert(metadata->size == ALLOC_SIZE);
     assert(metadata->in_use == FALSE);
 }
@@ -351,10 +355,10 @@ void when_TINY_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_sho
 
 void when_SMALL_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry() {
     // Arrange
-    void *allocs[113]; // 113 = max tiny zone capacity
+    void *allocs[100]; // 100 = max SMALL_ZONE capacity
 
     // Act
-    for (int i = 0; i < 113; i++) {
+    for (int i = 0; i < 100; i++) {
         allocs[i] = malloc(TINY_ZONE_THRESHOLD);
     }
     free(allocs[42]);
@@ -364,7 +368,7 @@ void when_SMALL_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_sh
     // Assert
     assert(new_ptr == allocs[42]);
     assert(contains(LEDGER, new_ptr));
-    assert(count_ledger_entries(LEDGER) == 113);
+    assert(count_ledger_entries(LEDGER) == 100);
 }
 
 int main() {
