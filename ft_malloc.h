@@ -29,7 +29,7 @@
 extern void *TINY__ZONE;
 extern void *SMALL__ZONE;
 extern void *LARGE__ZONE;
-extern void *LEDGER;
+extern void *ALLOCATIONS_LEDGER;
 extern void *LARGE_ALLOCS_LEDGER;
 
 // MACROS
@@ -47,10 +47,12 @@ extern void *LARGE_ALLOCS_LEDGER;
 
 // Define the enum
 typedef enum {
-	TINY,
-	SMALL,
-	LARGE
-} e_zone;
+	__LEDGER,
+	__TINY,
+	__SMALL,
+	__LARGE,
+} e_tags;
+
 typedef char bool;
 
 // INLINE FUNCTIONS

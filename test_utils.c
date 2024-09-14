@@ -56,7 +56,7 @@ void run_test_case(TestFunction test_func, const char *test_name) {
         munmap(ptr, alloc_size);
     }
     // unset every byte in ledgers
-    ft_bzero(LEDGER, get_ledger_size());
+    ft_bzero(ALLOCATIONS_LEDGER, get_ledger_size());
     ft_bzero(LARGE_ALLOCS_LEDGER, get_ledger_size());
 
     // unset every byte in allocation zones

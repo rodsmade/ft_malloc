@@ -17,9 +17,9 @@
 void *TINY__ZONE = NULL;
 void *SMALL__ZONE = NULL;
 void *LARGE__ZONE = NULL;
-size_t zones_capacity[3];
+size_t capacities[3];
 
-void *LEDGER = NULL;
+void *ALLOCATIONS_LEDGER = NULL;
 void *LARGE_ALLOCS_LEDGER = NULL;
 
 void *safe_mmap(int size) {
@@ -36,32 +36,32 @@ __attribute__((constructor))
 void prologue() {
 	AllocationMetadata *entry;
 
-	// alloc TINY zone
-	// initially one page only
-	TINY__ZONE = safe_mmap(get_tiny_zone_size());
+	capacities[__TINY] = get_tiny_zone_size();
+	capacities[__SMALL] = get_small_zone_size();
+	capacities[__LEDGER] = get_ledger_size();
+
+	// Set up tiny zone
+	TINY__ZONE = safe_mmap(capacities[__TINY]);
 	entry = (AllocationMetadata *) TINY__ZONE;
 	entry->in_use = FALSE;
 	entry->size = 0;
-	zones_capacity[TINY] = get_tiny_zone_size();
 
 	// alloc SMALL zone
-	// initially one page only
-	SMALL__ZONE = safe_mmap(get_small_zone_size());
+	SMALL__ZONE = safe_mmap(capacities[__SMALL]);
 	entry = (AllocationMetadata *) SMALL__ZONE;
 	entry->in_use = FALSE;
 	entry->size = 0;
-	zones_capacity[SMALL] = get_small_zone_size();
 
 	// LEDGER
 	// one page only
-	LEDGER = safe_mmap(get_ledger_size());
+	ALLOCATIONS_LEDGER = safe_mmap(capacities[__LEDGER]);
 	unsigned long i = -1;
 	while (++i < PAGE_SIZE / sizeof(void *))
-		((void **)LEDGER)[i] = NULL;
+		((void **)ALLOCATIONS_LEDGER)[i] = NULL;
 
 	// LARGE LEDGER
 	// one page only
-	LARGE_ALLOCS_LEDGER = safe_mmap(get_ledger_size());
+	LARGE_ALLOCS_LEDGER = safe_mmap(capacities[__LEDGER]);
 	i = -1;
 	while (++i < PAGE_SIZE / sizeof(void *))
 		((void **)LARGE_ALLOCS_LEDGER)[i] = NULL;
@@ -91,12 +91,12 @@ void *pop(void *array, void *ptr) {
 	return (array);
 }
 
-void	*allocate_ptr(size_t size, e_zone zone) {
+void	*allocate_ptr(size_t size, e_tags zone) {
 	void *zone_start = NULL;
 	switch (zone) {
-		case TINY:
+		case __TINY:
 				zone_start = TINY__ZONE; break;
-		case SMALL:
+		case __SMALL:
 				zone_start = SMALL__ZONE; break;
 		default:
 				return NULL; break;
@@ -106,7 +106,7 @@ void	*allocate_ptr(size_t size, e_zone zone) {
 	while (entry->in_use) {
 		// Checks for available space
 		current_allocated_size += entry->size + sizeof(AllocationMetadata);
-		if (current_allocated_size + size > zones_capacity[zone])
+		if (current_allocated_size + size > capacities[zone])
 			return (NULL);
 
 		entry = (void *) entry + sizeof(AllocationMetadata) + entry->size;
@@ -123,7 +123,7 @@ void	*allocate_ptr(size_t size, e_zone zone) {
 	void *ptr = (void *) entry + sizeof(AllocationMetadata);
 
 	// Add new allocation ptr to ledger
-	LEDGER = push_to_back(LEDGER, ptr);
+	ALLOCATIONS_LEDGER = push_to_back(ALLOCATIONS_LEDGER, ptr);
 	return (ptr);
 }
 
@@ -134,9 +134,9 @@ void	*malloc(size_t size)
 	if (size > get_max_rlimit_data())
 		return ptr;
 	if (size <= TINY_ZONE_THRESHOLD)
-		ptr = allocate_ptr(size, TINY);
+		ptr = allocate_ptr(size, __TINY);
 	if (size > TINY_ZONE_THRESHOLD && size <= SMALL_ZONE_THRESHOLD)
-		ptr = allocate_ptr(size, SMALL);
+		ptr = allocate_ptr(size, __SMALL);
 	if (size > SMALL_ZONE_THRESHOLD) {
 		void *chunk = mmap(NULL, size + sizeof(LargeAllocationMetadata), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 		if (chunk) {
@@ -166,12 +166,12 @@ void	free(void *ptr)
 
 	// checar se o ptr passado de fato é um ponteiro que eu dei malloc.
 	int i = -1;
-	while (((void **)LEDGER)[++i]) {
-		if (((void **)LEDGER)[i] == ptr) {
+	while (((void **)ALLOCATIONS_LEDGER)[++i]) {
+		if (((void **)ALLOCATIONS_LEDGER)[i] == ptr) {
 			// dar free
 			AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
 			metadata->in_use = FALSE;
-			pop(LEDGER, ptr);
+			pop(ALLOCATIONS_LEDGER, ptr);
 			return ;
 		}
 	}
@@ -211,7 +211,7 @@ void	*realloc(void *ptr, size_t size)
 	}
 
 	if (ptr && size) {
-		if (contains(LEDGER, ptr) || contains(LARGE_ALLOCS_LEDGER, ptr)) {
+		if (contains(ALLOCATIONS_LEDGER, ptr) || contains(LARGE_ALLOCS_LEDGER, ptr)) {
 			free(ptr);
 			rptr = malloc(size);
 		} else {
