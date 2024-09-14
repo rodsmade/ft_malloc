@@ -17,8 +17,8 @@ void when_allocating_0_bytes_then_LEDGER_should_contain_an_allocation() {
     assert(ptr != NULL);
     assert(count_ledger_entries(ALLOCATIONS_LEDGER) == 1);
     assert(((void **) ALLOCATIONS_LEDGER)[0] == ptr);
-    assert(((AllocationMetadata *)TINY__ZONE)->size == ALLOC_SIZE
-        && ((AllocationMetadata *)TINY__ZONE)->in_use == TRUE);
+    assert(((AllocationMetadata *)ZONES[__TINY])->size == ALLOC_SIZE
+        && ((AllocationMetadata *)ZONES[__TINY])->in_use == TRUE);
 }
 
 void when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK() {
@@ -31,8 +31,8 @@ void when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK() {
 
     // Assert
     assert(count_ledger_entries(ALLOCATIONS_LEDGER) == 0);
-    assert(((AllocationMetadata *)TINY__ZONE)->size == ALLOC_SIZE
-        && ((AllocationMetadata *)TINY__ZONE)->in_use == FALSE);
+    assert(((AllocationMetadata *)ZONES[__TINY])->size == ALLOC_SIZE
+        && ((AllocationMetadata *)ZONES[__TINY])->in_use == FALSE);
 }
 
 void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use() {
@@ -60,7 +60,7 @@ void when_freeing_10_bytes_then_LEDGER_allocation_should_be_marked_as_unused() {
     free(ptr);
 
     // Assert
-    AllocationMetadata *metadata = TINY__ZONE;
+    AllocationMetadata *metadata = ZONES[__TINY];
 
     assert(count_ledger_entries(ALLOCATIONS_LEDGER) == 0);
     assert(metadata->size == ALLOC_SIZE);

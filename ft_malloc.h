@@ -26,9 +26,7 @@
 # include <stdio.h>
 
 // GLOBAL VARIABLES FOR TESTING
-extern void *TINY__ZONE;
-extern void *SMALL__ZONE;
-extern void *LARGE__ZONE;
+extern void *ZONES[3];
 extern void *ALLOCATIONS_LEDGER;
 extern void *LARGE_ALLOCS_LEDGER;
 
@@ -47,10 +45,10 @@ extern void *LARGE_ALLOCS_LEDGER;
 
 // Define the enum
 typedef enum {
-	__LEDGER,
 	__TINY,
 	__SMALL,
 	__LARGE,
+	__LEDGER,
 } e_tags;
 
 typedef char bool;

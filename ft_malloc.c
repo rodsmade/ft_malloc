@@ -14,10 +14,8 @@
 
 // new calls to mmap need to follow the available in getrlimit, even if it's infinite. remember you're not using sbreak 
 
-void *TINY__ZONE = NULL;
-void *SMALL__ZONE = NULL;
-void *LARGE__ZONE = NULL;
-size_t capacities[3];
+void *ZONES[3] = { NULL };
+size_t capacities[4] = { 0x0 };
 
 void *ALLOCATIONS_LEDGER = NULL;
 void *LARGE_ALLOCS_LEDGER = NULL;
@@ -41,14 +39,14 @@ void prologue() {
 	capacities[__LEDGER] = get_ledger_size();
 
 	// Set up tiny zone
-	TINY__ZONE = safe_mmap(capacities[__TINY]);
-	entry = (AllocationMetadata *) TINY__ZONE;
+	ZONES[__TINY] = safe_mmap(capacities[__TINY]);
+	entry = (AllocationMetadata *) ZONES[__TINY];
 	entry->in_use = FALSE;
 	entry->size = 0;
 
 	// alloc SMALL zone
-	SMALL__ZONE = safe_mmap(capacities[__SMALL]);
-	entry = (AllocationMetadata *) SMALL__ZONE;
+	ZONES[__SMALL] = safe_mmap(capacities[__SMALL]);
+	entry = (AllocationMetadata *) ZONES[__SMALL];
 	entry->in_use = FALSE;
 	entry->size = 0;
 
@@ -95,9 +93,9 @@ void	*allocate_ptr(size_t size, e_tags zone) {
 	void *zone_start = NULL;
 	switch (zone) {
 		case __TINY:
-				zone_start = TINY__ZONE; break;
+				zone_start = ZONES[__TINY]; break;
 		case __SMALL:
-				zone_start = SMALL__ZONE; break;
+				zone_start = ZONES[__SMALL]; break;
 		default:
 				return NULL; break;
 	}
@@ -233,10 +231,10 @@ void show_alloc_mem()
 
 	// Print allocations in TINY_
 	ft_putstr_fd("TINY : ", 1);
-	ft_putptr_fd(TINY__ZONE, 1);
+	ft_putptr_fd(ZONES[__TINY], 1);
 	ft_putchar_fd('\n', 1);
 
-	head = (AllocationMetadata *) TINY__ZONE;
+	head = (AllocationMetadata *) ZONES[__TINY];
 	while (head->in_use) {
 		ft_putptr_fd((void *) head + sizeof(AllocationMetadata), 1);
 		ft_putstr_fd(" - ", 1);
@@ -250,10 +248,10 @@ void show_alloc_mem()
 
 	// Print allocations in SMALL_
 	ft_putstr_fd("SMALL : ", 1);
-	ft_putptr_fd(SMALL__ZONE, 1);
+	ft_putptr_fd(ZONES[__SMALL], 1);
 	ft_putchar_fd('\n', 1);
 
-	head = (AllocationMetadata *) SMALL__ZONE;
+	head = (AllocationMetadata *) ZONES[__SMALL];
 	while (head->in_use) {
 		ft_putptr_fd((void *) head + sizeof(AllocationMetadata), 1);
 		ft_putstr_fd(" - ", 1);
@@ -293,8 +291,8 @@ void show_alloc_mem()
 void epilogue() __attribute__((destructor));
 
 void epilogue() {
-	munmap(TINY__ZONE, get_tiny_zone_size());
-	munmap(SMALL__ZONE, get_small_zone_size());
+	munmap(ZONES[__TINY], get_tiny_zone_size());
+	munmap(ZONES[__SMALL], get_small_zone_size());
 
 	// Go through large allocs ledgers and unmap
 	for (int i = 0; ((void **)LARGE_ALLOCS_LEDGER)[i]; i++) {

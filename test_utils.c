@@ -60,8 +60,8 @@ void run_test_case(TestFunction test_func, const char *test_name) {
     ft_bzero(LARGE_ALLOCS_LEDGER, get_ledger_size());
 
     // unset every byte in allocation zones
-    ft_bzero(TINY__ZONE, get_tiny_zone_size());
-    ft_bzero(SMALL__ZONE, get_small_zone_size());
+    ft_bzero(ZONES[__TINY], get_tiny_zone_size());
+    ft_bzero(ZONES[__SMALL], get_small_zone_size());
 }
 
 void perror_exit(int condition, const char* err_msg) {
