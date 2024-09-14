@@ -12,11 +12,11 @@
 
 #include "ft_malloc.h"
 
-// new calls to mmap need to follow the available in getrlimit, even if it's infinite. remember you're not using sbreak 
-
-void *ZONES[3] = { NULL };
-void *LEDGERS[3] = { NULL };
-size_t capacities[4] = { 0x0 };
+t_global_data g_data = {
+	.ZONES = { NULL, NULL, NULL },
+	.LEDGERS = { NULL, NULL, NULL },
+	.CAPACITIES = { 0x0, 0x0, 0x0, 0x0 }
+};
 
 void *safe_mmap(int size) {
 	void *allocation = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
@@ -30,31 +30,32 @@ void *safe_mmap(int size) {
 // Constructor function
 __attribute__((constructor))
 void prologue() {
+	// Initialize capacities
+	g_data.CAPACITIES[__TINY] = get_tiny_zone_size();
+	g_data.CAPACITIES[__SMALL] = get_small_zone_size();
+	g_data.CAPACITIES[__LEDGER] = get_ledger_size();
+
 	AllocationMetadata *entry;
 
-	capacities[__TINY] = get_tiny_zone_size();
-	capacities[__SMALL] = get_small_zone_size();
-	capacities[__LEDGER] = get_ledger_size();
-
 	// Set up tiny zone
-	ZONES[__TINY] = safe_mmap(capacities[__TINY]);
-	entry = (AllocationMetadata *) ZONES[__TINY];
+	g_data.ZONES[__TINY] = safe_mmap(g_data.CAPACITIES[__TINY]);
+	entry = (AllocationMetadata *) g_data.ZONES[__TINY];
 	entry->in_use = FALSE;
 	entry->size = 0;
 
 	// alloc SMALL zone
-	ZONES[__SMALL] = safe_mmap(capacities[__SMALL]);
-	entry = (AllocationMetadata *) ZONES[__SMALL];
+	g_data.ZONES[__SMALL] = safe_mmap(g_data.CAPACITIES[__SMALL]);
+	entry = (AllocationMetadata *) g_data.ZONES[__SMALL];
 	entry->in_use = FALSE;
 	entry->size = 0;
 
 	// LEDGER
-	LEDGERS[__TINY] = safe_mmap(capacities[__LEDGER]);
-	ft_bzero(LEDGERS[__TINY], capacities[__LEDGER]);
-	LEDGERS[__SMALL] = safe_mmap(capacities[__LEDGER]);
-	ft_bzero(LEDGERS[__SMALL], capacities[__LEDGER]);
-	LEDGERS[__LARGE] = safe_mmap(capacities[__LEDGER]);
-	ft_bzero(LEDGERS[__LARGE], capacities[__LEDGER]);
+	g_data.LEDGERS[__TINY] = safe_mmap(g_data.CAPACITIES[__LEDGER]);
+	ft_bzero(g_data.LEDGERS[__TINY], g_data.CAPACITIES[__LEDGER]);
+	g_data.LEDGERS[__SMALL] = safe_mmap(g_data.CAPACITIES[__LEDGER]);
+	ft_bzero(g_data.LEDGERS[__SMALL], g_data.CAPACITIES[__LEDGER]);
+	g_data.LEDGERS[__LARGE] = safe_mmap(g_data.CAPACITIES[__LEDGER]);
+	ft_bzero(g_data.LEDGERS[__LARGE], g_data.CAPACITIES[__LEDGER]);
 }
 
 void *push_to_back(void *array, void *ptr) {
@@ -85,9 +86,9 @@ void	*allocate_ptr(size_t size, e_tags zone) {
 	void *zone_start = NULL;
 	switch (zone) {
 		case __TINY:
-				zone_start = ZONES[__TINY]; break;
+				zone_start = g_data.ZONES[__TINY]; break;
 		case __SMALL:
-				zone_start = ZONES[__SMALL]; break;
+				zone_start = g_data.ZONES[__SMALL]; break;
 		default:
 				return NULL; break;
 	}
@@ -96,7 +97,7 @@ void	*allocate_ptr(size_t size, e_tags zone) {
 	while (entry->in_use) {
 		// Checks for available space
 		current_allocated_size += entry->size + sizeof(AllocationMetadata);
-		if (current_allocated_size + size > capacities[zone])
+		if (current_allocated_size + size > g_data.CAPACITIES[zone])
 			return (NULL);
 
 		entry = (void *) entry + sizeof(AllocationMetadata) + entry->size;
@@ -113,7 +114,7 @@ void	*allocate_ptr(size_t size, e_tags zone) {
 	void *ptr = (void *) entry + sizeof(AllocationMetadata);
 
 	// Add new allocation ptr to ledger
-	LEDGERS[zone] = push_to_back(LEDGERS[zone], ptr);
+	g_data.LEDGERS[zone] = push_to_back(g_data.LEDGERS[zone], ptr);
 	return (ptr);
 }
 
@@ -133,20 +134,20 @@ void	*malloc(size_t size)
 			// Fills in metadata
 			((LargeAllocationMetadata *) chunk)->size = size;
 
-			// Push pointer to LEDGERS[__LARGE]
+			// Push pointer to g_data.LEDGERS[__LARGE]
 			ptr = (void *) chunk + sizeof(LargeAllocationMetadata);
-			LEDGERS[__LARGE] = push_to_back(LEDGERS[__LARGE], ptr);
+			g_data.LEDGERS[__LARGE] = push_to_back(g_data.LEDGERS[__LARGE], ptr);
 		}
 	}
 	return (ptr);
 }
 
 bool contains(void *array, void *ptr) {
-    for (int i = 0; ((void **)array)[i]; i++) {
-        if (((void **)array)[i] == ptr)
-            return TRUE;
-    }
-    return FALSE;
+	for (int i = 0; ((void **)array)[i]; i++) {
+		if (((void **)array)[i] == ptr)
+			return TRUE;
+	}
+	return FALSE;
 }
 
 void	free(void *ptr)
@@ -156,28 +157,28 @@ void	free(void *ptr)
 
 	// checar se o ptr passado de fato é um ponteiro que eu dei malloc.
 	int i = -1;
-	while (((void **)LEDGERS[__TINY])[++i]) {
-		if (((void **)LEDGERS[__TINY])[i] == ptr) {
+	while (((void **)g_data.LEDGERS[__TINY])[++i]) {
+		if (((void **)g_data.LEDGERS[__TINY])[i] == ptr) {
 			// dar free
 			AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
 			metadata->in_use = FALSE;
-			pop(LEDGERS[__TINY], ptr);
+			pop(g_data.LEDGERS[__TINY], ptr);
 			return ;
 		}
 	}
 	i = -1;
-	while (((void **)LEDGERS[__SMALL])[++i]) {
-		if (((void **)LEDGERS[__SMALL])[i] == ptr) {
+	while (((void **)g_data.LEDGERS[__SMALL])[++i]) {
+		if (((void **)g_data.LEDGERS[__SMALL])[i] == ptr) {
 			// dar free
 			AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
 			metadata->in_use = FALSE;
-			pop(LEDGERS[__SMALL], ptr);
+			pop(g_data.LEDGERS[__SMALL], ptr);
 			return ;
 		}
 	}
 	i = -1;
-	while (((void **)LEDGERS[__LARGE])[++i]) {
-		if (((void **)LEDGERS[__LARGE])[i] == ptr) {
+	while (((void **)g_data.LEDGERS[__LARGE])[++i]) {
+		if (((void **)g_data.LEDGERS[__LARGE])[i] == ptr) {
 			// dar free
 			void *allocation_head = (void *)ptr - sizeof(LargeAllocationMetadata);
 			size_t alloc_size = ((LargeAllocationMetadata *)allocation_head)->size;
@@ -186,7 +187,7 @@ void	free(void *ptr)
 			munmap(allocation_head, sizeof(AllocationMetadata) + alloc_size);
 
 			// remove entry from ledger
-			LEDGERS[__LARGE] = pop(LEDGERS[__LARGE], ptr);
+			g_data.LEDGERS[__LARGE] = pop(g_data.LEDGERS[__LARGE], ptr);
 
 			return ;
 		}
@@ -209,9 +210,9 @@ void	*realloc(void *ptr, size_t size)
 	}
 
 	if (ptr && size) {
-		if (contains(LEDGERS[__TINY], ptr)
-			|| contains(LEDGERS[__SMALL], ptr)
-			|| contains(LEDGERS[__LARGE], ptr)) {
+		if (contains(g_data.LEDGERS[__TINY], ptr)
+			|| contains(g_data.LEDGERS[__SMALL], ptr)
+			|| contains(g_data.LEDGERS[__LARGE], ptr)) {
 			free(ptr);
 			rptr = malloc(size);
 		} else {
@@ -233,10 +234,10 @@ void show_alloc_mem()
 
 	// Print allocations in TINY_
 	ft_putstr_fd("TINY : ", 1);
-	ft_putptr_fd(ZONES[__TINY], 1);
+	ft_putptr_fd(g_data.ZONES[__TINY], 1);
 	ft_putchar_fd('\n', 1);
 
-	head = (AllocationMetadata *) ZONES[__TINY];
+	head = (AllocationMetadata *) g_data.ZONES[__TINY];
 	while (head->in_use) {
 		ft_putptr_fd((void *) head + sizeof(AllocationMetadata), 1);
 		ft_putstr_fd(" - ", 1);
@@ -250,10 +251,10 @@ void show_alloc_mem()
 
 	// Print allocations in SMALL_
 	ft_putstr_fd("SMALL : ", 1);
-	ft_putptr_fd(ZONES[__SMALL], 1);
+	ft_putptr_fd(g_data.ZONES[__SMALL], 1);
 	ft_putchar_fd('\n', 1);
 
-	head = (AllocationMetadata *) ZONES[__SMALL];
+	head = (AllocationMetadata *) g_data.ZONES[__SMALL];
 	while (head->in_use) {
 		ft_putptr_fd((void *) head + sizeof(AllocationMetadata), 1);
 		ft_putstr_fd(" - ", 1);
@@ -267,9 +268,9 @@ void show_alloc_mem()
 
 	// Print allocations in LARGE_
 	ft_putstr_fd("LARGE : ", 1);
-	ft_putptr_fd(LEDGERS[__LARGE], 1);
+	ft_putptr_fd(g_data.LEDGERS[__LARGE], 1);
 	ft_putchar_fd('\n', 1);
-	void **largeEntry = LEDGERS[__LARGE];
+	void **largeEntry = g_data.LEDGERS[__LARGE];
 	int i = -1;
 	while (largeEntry[++i] != NULL) {
 		ft_putptr_fd((void *) largeEntry[i], 1);
@@ -293,12 +294,12 @@ void show_alloc_mem()
 void epilogue() __attribute__((destructor));
 
 void epilogue() {
-	munmap(ZONES[__TINY], get_tiny_zone_size());
-	munmap(ZONES[__SMALL], get_small_zone_size());
+	munmap(g_data.ZONES[__TINY], get_tiny_zone_size());
+	munmap(g_data.ZONES[__SMALL], get_small_zone_size());
 
 	// Go through large allocs ledgers and unmap
-	for (int i = 0; ((void **)LEDGERS[__LARGE])[i]; i++) {
-		void *ptr = ((void **)LEDGERS[__LARGE])[i];
+	for (int i = 0; ((void **)g_data.LEDGERS[__LARGE])[i]; i++) {
+		void *ptr = ((void **)g_data.LEDGERS[__LARGE])[i];
 		void *allocation_head = (void *)ptr - sizeof(LargeAllocationMetadata);
 		size_t alloc_size = ((LargeAllocationMetadata *)allocation_head)->size;
 		munmap(ptr, alloc_size);

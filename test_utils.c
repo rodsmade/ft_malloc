@@ -49,20 +49,20 @@ void run_test_case(TestFunction test_func, const char *test_name) {
 
     // RESET MEMORY BETWEEN TESTS
     // go through large allocs ledgers and unmap
-    for (int i = 0; ((void **)LEDGERS[__LARGE])[i]; i++) {
-        void *ptr = ((void **)LEDGERS[__LARGE])[i];
+    for (int i = 0; ((void **)g_data.LEDGERS[__LARGE])[i]; i++) {
+        void *ptr = ((void **)g_data.LEDGERS[__LARGE])[i];
         void *allocation_head = (void *)ptr - sizeof(LargeAllocationMetadata);
         size_t alloc_size = ((LargeAllocationMetadata *)allocation_head)->size;
         munmap(ptr, alloc_size);
     }
     // unset every byte in ledgers
-    ft_bzero(LEDGERS[__TINY], get_ledger_size());
-    ft_bzero(LEDGERS[__SMALL], get_ledger_size());
-    ft_bzero(LEDGERS[__LARGE], get_ledger_size());
+    ft_bzero(g_data.LEDGERS[__TINY], get_ledger_size());
+    ft_bzero(g_data.LEDGERS[__SMALL], get_ledger_size());
+    ft_bzero(g_data.LEDGERS[__LARGE], get_ledger_size());
 
     // unset every byte in allocation zones
-    ft_bzero(ZONES[__TINY], get_tiny_zone_size());
-    ft_bzero(ZONES[__SMALL], get_small_zone_size());
+    ft_bzero(g_data.ZONES[__TINY], get_tiny_zone_size());
+    ft_bzero(g_data.ZONES[__SMALL], get_small_zone_size());
 }
 
 void perror_exit(int condition, const char* err_msg) {

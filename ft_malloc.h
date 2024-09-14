@@ -25,10 +25,6 @@
 // DEBUGGING
 # include <stdio.h>
 
-// GLOBAL VARIABLES FOR TESTING
-extern void *ZONES[3];
-extern void *LEDGERS[3];
-
 // MACROS
 # define TINY_ZONE_THRESHOLD 128
 # define SMALL_ZONE_THRESHOLD 4096
@@ -96,6 +92,15 @@ typedef struct AllocationMetadata {
 typedef struct LargeAllocationMetadata {
 	size_t	size;
 } LargeAllocationMetadata;
+
+typedef struct GlobalData {
+	void *ZONES[3];
+	void *LEDGERS[3];
+	size_t CAPACITIES[4];
+} t_global_data;
+
+// GLOBAL VARIABLE
+extern t_global_data g_data;
 
 // PROTOTYPES
 void	free(void *ptr);
