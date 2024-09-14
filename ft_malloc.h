@@ -108,4 +108,10 @@ void	*malloc(size_t size);
 void	*realloc(void *ptr, size_t size);
 void	show_alloc_mem();
 
+// Utils
+void	*safe_mmap(int size);
+void	*push_to_back(void *array, void *ptr);
+void	*pop(void *array, void *ptr);
+bool	contains(void *array, void *ptr);
+
 #endif

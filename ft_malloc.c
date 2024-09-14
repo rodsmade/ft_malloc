@@ -18,15 +18,6 @@ t_global_data g_data = {
 	.CAPACITIES = { 0x0, 0x0, 0x0, 0x0 }
 };
 
-void *safe_mmap(int size) {
-	void *allocation = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-	if (allocation == MAP_FAILED) {
-		perror("call to mmap failed");
-		exit(EXIT_FAILURE);
-	}
-	return (allocation);
-}
-
 // Constructor function
 __attribute__((constructor))
 void prologue() {
@@ -56,30 +47,6 @@ void prologue() {
 	ft_bzero(g_data.LEDGERS[__SMALL], g_data.CAPACITIES[__LEDGER]);
 	g_data.LEDGERS[__LARGE] = safe_mmap(g_data.CAPACITIES[__LEDGER]);
 	ft_bzero(g_data.LEDGERS[__LARGE], g_data.CAPACITIES[__LEDGER]);
-}
-
-void *push_to_back(void *array, void *ptr) {
-	int i = -1;
-	while (((void **)array)[++i])
-		continue ;
-	((void **)array)[i] = ptr;
-	return (array);
-}
-
-void *pop(void *array, void *ptr) {
-	int i = -1;
-	while (((void **)array)[++i] && ((void **)array)[i] != ptr)
-		;
-
-	if (((void **)array)[i]) {
-		while (((void **)array)[i + 1]) {
-			((void **)array)[i] = ((void **)array)[i + 1];
-			i++;
-		}
-		((void **)array)[i] = NULL;
-	}
-
-	return (array);
 }
 
 void	*allocate_ptr(size_t size, e_tags zone) {
@@ -140,14 +107,6 @@ void	*malloc(size_t size)
 		}
 	}
 	return (ptr);
-}
-
-bool contains(void *array, void *ptr) {
-	for (int i = 0; ((void **)array)[i]; i++) {
-		if (((void **)array)[i] == ptr)
-			return TRUE;
-	}
-	return FALSE;
 }
 
 void	free(void *ptr)

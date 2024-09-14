@@ -9,7 +9,7 @@ endif
 LIBNAME = libft_malloc_$(HOSTTYPE).so
 LIBNAME_SHORT = ft_malloc_$(HOSTTYPE)
 
-SRC = ft_malloc.c
+SRC = ft_malloc.c utils.c
 
 all: $(LIBNAME)
 
