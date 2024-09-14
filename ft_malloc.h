@@ -27,8 +27,7 @@
 
 // GLOBAL VARIABLES FOR TESTING
 extern void *ZONES[3];
-extern void *ALLOCATIONS_LEDGER;
-extern void *LARGE_ALLOCS_LEDGER;
+extern void *LEDGERS[3];
 
 // MACROS
 # define TINY_ZONE_THRESHOLD 128
