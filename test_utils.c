@@ -51,8 +51,8 @@ void run_test_case(TestFunction test_func, const char *test_name) {
     // go through large allocs ledgers and unmap
     for (int i = 0; ((void **)g_data.LEDGERS[__LARGE])[i]; i++) {
         void *ptr = ((void **)g_data.LEDGERS[__LARGE])[i];
-        void *allocation_head = (void *)ptr - sizeof(LargeAllocationMetadata);
-        size_t alloc_size = ((LargeAllocationMetadata *)allocation_head)->size;
+        void *allocation_head = (void *)ptr - sizeof(AllocationMetadata);
+        size_t alloc_size = ((AllocationMetadata *)allocation_head)->size;
         munmap(ptr, alloc_size);
     }
     // unset every byte in ledgers

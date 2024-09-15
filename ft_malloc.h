@@ -89,10 +89,6 @@ typedef struct AllocationMetadata {
 	size_t		size;
 } AllocationMetadata;
 
-typedef struct LargeAllocationMetadata {
-	size_t	size;
-} LargeAllocationMetadata;
-
 typedef struct GlobalData {
 	void *ZONES[3];
 	void *LEDGERS[3];
