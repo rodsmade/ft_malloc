@@ -1,6 +1,6 @@
 #include "ft_malloc.h"
 
-void *safe_mmap(int size) {
+void *safe_mmap(size_t size) {
 	void *allocation = mmap(NULL, size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
 	if (allocation == MAP_FAILED) {
 		perror("call to mmap failed");

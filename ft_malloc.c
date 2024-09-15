@@ -49,7 +49,7 @@ void prologue() {
 	ft_bzero(g_data.LEDGERS[__LARGE], g_data.CAPACITIES[__LEDGER]);
 }
 
-void	*allocate_ptr(size_t size, e_tags zone) {
+void	*allocate_in_zone(size_t size, e_tags zone) {
 	void *zone_start = NULL;
 	switch (zone) {
 		case __TINY:
@@ -85,6 +85,20 @@ void	*allocate_ptr(size_t size, e_tags zone) {
 	return (ptr);
 }
 
+void *allocate_out_of_zone(size_t size) {
+	void *chunk = safe_mmap(size + sizeof(AllocationMetadata));
+	if (chunk) {
+		// Fills in metadata
+		((AllocationMetadata *) chunk)->size = size;
+
+		// Advances chunk to actual start of ptr
+		chunk = (void *) chunk + sizeof(AllocationMetadata);
+		// Push pointer to g_data.LEDGERS[__LARGE]
+		g_data.LEDGERS[__LARGE] = push_to_back(g_data.LEDGERS[__LARGE], chunk);
+	}
+	return (chunk);
+}
+
 void	*malloc(size_t size)
 {
 	void *ptr = NULL;
@@ -92,20 +106,11 @@ void	*malloc(size_t size)
 	if (size > get_max_rlimit_data())
 		return ptr;
 	if (size <= TINY_ZONE_THRESHOLD)
-		ptr = allocate_ptr(size, __TINY);
+		ptr = allocate_in_zone(size, __TINY);
 	if (size > TINY_ZONE_THRESHOLD && size <= SMALL_ZONE_THRESHOLD)
-		ptr = allocate_ptr(size, __SMALL);
-	if (size > SMALL_ZONE_THRESHOLD) {
-		void *chunk = mmap(NULL, size + sizeof(AllocationMetadata), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, 0, 0);
-		if (chunk) {
-			// Fills in metadata
-			((AllocationMetadata *) chunk)->size = size;
-
-			// Push pointer to g_data.LEDGERS[__LARGE]
-			ptr = (void *) chunk + sizeof(AllocationMetadata);
-			g_data.LEDGERS[__LARGE] = push_to_back(g_data.LEDGERS[__LARGE], ptr);
-		}
-	}
+		ptr = allocate_in_zone(size, __SMALL);
+	if (size > SMALL_ZONE_THRESHOLD)
+		ptr = allocate_out_of_zone(size);
 	return (ptr);
 }
 
