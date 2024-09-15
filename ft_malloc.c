@@ -49,68 +49,20 @@ void prologue() {
 	ft_bzero(g_data.LEDGERS[__LARGE], g_data.CAPACITIES[__LEDGER]);
 }
 
-void	*allocate_in_zone(size_t size, e_tags zone) {
-	void *zone_start = NULL;
-	switch (zone) {
-		case __TINY:
-				zone_start = g_data.ZONES[__TINY]; break;
-		case __SMALL:
-				zone_start = g_data.ZONES[__SMALL]; break;
-		default:
-				return NULL; break;
-	}
-	AllocationMetadata *entry = zone_start;
-	size_t current_allocated_size = 0;
-	while (entry->in_use) {
-		// Checks for available space
-		current_allocated_size += entry->size + sizeof(AllocationMetadata);
-		if (current_allocated_size + size > g_data.CAPACITIES[zone])
-			return (NULL);
-
-		entry = (void *) entry + sizeof(AllocationMetadata) + entry->size;
-
-		// Checks for the possibility to reuse previously allocated chunks
-		if (!entry->in_use && entry->size >= size) {
-			break ;
-		}
-	}
-	// Marks memory chunk as used
-	entry->in_use = TRUE;
-	entry->size = size;
-
-	void *ptr = (void *) entry + sizeof(AllocationMetadata);
-
-	// Add new allocation ptr to ledger
-	g_data.LEDGERS[zone] = push_to_back(g_data.LEDGERS[zone], ptr);
-	return (ptr);
-}
-
-void *allocate_out_of_zone(size_t size) {
-	void *chunk = safe_mmap(size + sizeof(AllocationMetadata));
-	if (chunk) {
-		// Fills in metadata
-		((AllocationMetadata *) chunk)->size = size;
-
-		// Advances chunk to actual start of ptr
-		chunk = (void *) chunk + sizeof(AllocationMetadata);
-		// Push pointer to g_data.LEDGERS[__LARGE]
-		g_data.LEDGERS[__LARGE] = push_to_back(g_data.LEDGERS[__LARGE], chunk);
-	}
-	return (chunk);
-}
-
 void	*malloc(size_t size)
 {
 	void *ptr = NULL;
 
-	if (size > get_max_rlimit_data())
+	if (size > get_max_rlimit_data()) // exceeds single allocation size limit
 		return ptr;
+
 	if (size <= TINY_ZONE_THRESHOLD)
 		ptr = allocate_in_zone(size, __TINY);
 	if (size > TINY_ZONE_THRESHOLD && size <= SMALL_ZONE_THRESHOLD)
 		ptr = allocate_in_zone(size, __SMALL);
 	if (size > SMALL_ZONE_THRESHOLD)
 		ptr = allocate_out_of_zone(size);
+
 	return (ptr);
 }
 

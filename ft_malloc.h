@@ -105,9 +105,11 @@ void	*realloc(void *ptr, size_t size);
 void	show_alloc_mem();
 
 // Utils
-void	*safe_mmap(size_t size);
-void	*push_to_back(void *array, void *ptr);
-void	*pop(void *array, void *ptr);
+void	*allocate_in_zone(size_t size, e_tags zone);
+void	*allocate_out_of_zone(size_t size);
 bool	contains(void *array, void *ptr);
+void	*pop(void *array, void *ptr);
+void	*push_to_back(void *array, void *ptr);
+void	*safe_mmap(size_t size);
 
 #endif
