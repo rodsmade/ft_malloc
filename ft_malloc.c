@@ -69,27 +69,25 @@ void	free(void *ptr) {
 	if (!ptr)
 		return ;
 
-	// checar se o ptr passado de fato é um ponteiro que eu dei malloc.
+	// Check if pointer is registered in ledger
 	int i = -1;
-	// while (((void **)g_data.LEDGERS[__TINY])[++i]) {
-	// 	if (((void **)g_data.LEDGERS[__TINY])[i] == ptr) {
-	// 		// dar free
-	// 		AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
-	// 		metadata->in_use = FALSE;
-	// 		pop(g_data.LEDGERS[__TINY], ptr);
-	// 		return ;
-	// 	}
-	// }
-	// i = -1;
-	// while (((void **)g_data.LEDGERS[__SMALL])[++i]) {
-	// 	if (((void **)g_data.LEDGERS[__SMALL])[i] == ptr) {
-	// 		// dar free
-	// 		AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
-	// 		metadata->in_use = FALSE;
-	// 		pop(g_data.LEDGERS[__SMALL], ptr);
-	// 		return ;
-	// 	}
-	// }
+	AllocationMetadata *ledger = g_data.LEDGERS[__TINY];
+	while (ledger[++i].ptr) {
+		if (ledger[i].ptr == ptr) {
+			// Mark as unused
+			ledger[i].in_use = FALSE;
+			return ;
+		}
+	}
+	i = -1;
+	ledger = g_data.LEDGERS[__SMALL];
+	while (ledger[++i].ptr) {
+		if (ledger[i].ptr == ptr) {
+			// Mark as unused
+			ledger[i].in_use = FALSE;
+			return ;
+		}
+	}
 	i = -1;
 	while (((AllocationMetadata *) g_data.LEDGERS[__LARGE])[++i].ptr) {
 		if (((AllocationMetadata *) g_data.LEDGERS[__LARGE])[i].ptr == ptr) {

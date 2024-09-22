@@ -15,9 +15,9 @@ void when_allocating_0_bytes_then_LEDGER_should_contain_an_allocation() {
     // Assert
     ft_assert(ptr != NULL);
     ft_assert(count_ledger_entries(__TINY) == 1);
-    ft_assert(((void **) g_data.LEDGERS[__TINY])[0] == ptr);
-    ft_assert(((AllocationMetadata *)g_data.ZONES[__TINY])->size == ALLOC_SIZE
-        && ((AllocationMetadata *)g_data.ZONES[__TINY])->in_use == TRUE);
+    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->ptr == ptr);
+    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->size == ALLOC_SIZE);
+    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->in_use == TRUE);
 }
 
 void when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK() {

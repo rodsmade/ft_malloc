@@ -1,39 +1,27 @@
 #include "ft_malloc.h"
 
 void *allocate_in_zone(size_t size, e_tags zone) {
-	void *zone_start = NULL;
-	switch (zone) {
-		case __TINY:
-				zone_start = g_data.ZONES[__TINY]; break;
-		case __SMALL:
-				zone_start = g_data.ZONES[__SMALL]; break;
-		default:
-				return NULL; break;
-	}
-	AllocationMetadata *entry = zone_start;
-	size_t current_allocated_size = 0;
-	while (entry->in_use) {
+	AllocationMetadata *ledger = g_data.LEDGERS[zone];
+
+	size_t currently_allocated_size = 0;
+	int i = -1;
+	while (ledger[++i].ptr) {
 		// Checks for available space
-		current_allocated_size += entry->size + sizeof(AllocationMetadata);
-		if (current_allocated_size + size > g_data.CAPACITIES[zone])
+		currently_allocated_size += ledger[i].size;
+		if (currently_allocated_size + size > g_data.CAPACITIES[zone])
 			return (NULL);
 
-		entry = (void *) entry + sizeof(AllocationMetadata) + entry->size;
-
 		// Checks for the possibility to reuse previously allocated chunks
-		if (!entry->in_use && entry->size >= size) {
+		if (!ledger[i].in_use && ledger[i].size >= size) {
 			break ;
 		}
 	}
 	// Marks memory chunk as used
-	entry->in_use = TRUE;
-	entry->size = size;
+	ledger[i].ptr = (void *) g_data.ZONES[zone] + currently_allocated_size;
+	ledger[i].in_use = TRUE;
+	ledger[i].size = size;
 
-	void *ptr = (void *) entry + sizeof(AllocationMetadata);
-
-	// Add new allocation ptr to ledger
-	g_data.LEDGERS[zone] = push_to_back(g_data.LEDGERS[zone], ptr);
-	return (ptr);
+	return (ledger[i].ptr);
 }
 
 void *allocate_out_of_zone(size_t size) {
