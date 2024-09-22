@@ -18,12 +18,10 @@
 # include <unistd.h> // getpagesize()
 # include <sys/time.h>
 # include <sys/resource.h> // getrlimit()
+# include <stdio.h> // perror()
 
 // CUSTOM HEADERS
 # include "libft.h"
-
-// DEBUGGING
-# include <stdio.h>
 
 // MACROS
 # define TINY_ZONE_THRESHOLD 128
@@ -32,14 +30,13 @@
 # define CUSTOM_MALLOC_UPPER_LIMIT 8589934592
 # define TRUE 1
 # define FALSE 0
-
 #if defined(__APPLE__) && defined(__MACH__)
     # define PAGE_SIZE getpagesize()
 #else
     # define PAGE_SIZE sysconf(_SC_PAGESIZE)
 #endif
 
-// Define the enum
+// ENUMS
 typedef enum {
 	__TINY,
 	__SMALL,
@@ -47,7 +44,20 @@ typedef enum {
 	__LEDGER,
 } e_tags;
 
+// TYPEDEFS
 typedef char bool;
+
+// DATA STRUCTURES
+typedef struct AllocationMetadata {
+	char		in_use;
+	size_t		size;
+} AllocationMetadata;
+
+typedef struct GlobalData {
+	void *ZONES[3];
+	void *LEDGERS[3];
+	size_t CAPACITIES[4];
+} t_global_data;
 
 // INLINE FUNCTIONS
 static inline int get_tiny_zone_size() {
@@ -81,18 +91,6 @@ static inline size_t get_max_rlimit_data() {
 	return (max_rlimit_data);
 }
 
-// DATA STRUCTURES
-typedef struct AllocationMetadata {
-	char		in_use;
-	size_t		size;
-} AllocationMetadata;
-
-typedef struct GlobalData {
-	void *ZONES[3];
-	void *LEDGERS[3];
-	size_t CAPACITIES[4];
-} t_global_data;
-
 // GLOBAL VARIABLE
 extern t_global_data g_data;
 
@@ -100,7 +98,7 @@ extern t_global_data g_data;
 void	free(void *ptr);
 void	*malloc(size_t size);
 void	*realloc(void *ptr, size_t size);
-void	show_alloc_mem();
+void	show_alloc_mem(void);
 
 // Utils
 void	*allocate_in_zone(size_t size, e_tags zone);
