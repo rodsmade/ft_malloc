@@ -13,3 +13,12 @@
 - [x] Your project must be clean code even without norm if it’s ugly you will get 0.
 - [x] You must use the mmap(2) and munmap(2) syscall to claim and return the memory zones to the system.
 - [x] Each zone must contain at least 100 allocations
+
+## Fix
+- [x] jogar metadados pra página dos ledgers
+    - [ ] edge case quando o reuso não é possível mas ainda tem alocação mais pra frente
+- [ ] 1024 x 1024
+- [ ] realloc kakakakak
+- [ ] show_alloc_mem comendo entradas
+- [ ] hexdump
+- [ ] refatorar free pra ficar bonito vai
