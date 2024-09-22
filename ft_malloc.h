@@ -100,7 +100,7 @@ void	*malloc(size_t size);
 void	*realloc(void *ptr, size_t size);
 void	show_alloc_mem(void);
 
-// Utils
+// UTILS
 void	*allocate_in_zone(size_t size, e_tags zone);
 void	*allocate_out_of_zone(size_t size);
 bool	contains(void *array, void *ptr);

@@ -49,8 +49,7 @@ void prologue() {
 	ft_bzero(g_data.LEDGERS[__LARGE], g_data.CAPACITIES[__LEDGER]);
 }
 
-void	*malloc(size_t size)
-{
+void	*malloc(size_t size) {
 	void *ptr = NULL;
 
 	if (size > get_max_rlimit_data()) // exceeds single allocation size limit
@@ -66,8 +65,7 @@ void	*malloc(size_t size)
 	return (ptr);
 }
 
-void	free(void *ptr)
-{
+void	free(void *ptr) {
 	if (!ptr)
 		return ;
 
@@ -114,8 +112,7 @@ void	free(void *ptr)
 	return ;
 }
 
-void	*realloc(void *ptr, size_t size)
-{
+void	*realloc(void *ptr, size_t size) {
 	void *rptr = NULL;
 
 	if (ptr && !size)
@@ -139,8 +136,7 @@ void	*realloc(void *ptr, size_t size)
 	return (rptr);
 }
 
-void show_alloc_mem()
-{
+void show_alloc_mem(void) {
 	AllocationMetadata *head;
 	int total = 0;
 
