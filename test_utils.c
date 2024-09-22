@@ -17,11 +17,12 @@ bool contains(void *array, void *ptr) {
     return FALSE;
 }
 
-size_t count_ledger_entries(void *ledger) {
-    void **pivot = ledger;
+size_t count_ledger_entries(e_tags zone) {
+    AllocationMetadata *ledger = g_data.LEDGERS[zone];
+
     size_t count = 0;
-    for (size_t i = 0; pivot[i]; i++) {
-        count++;
+    for (size_t i = 0; ledger[i].ptr; i++) {
+        if (ledger[i].in_use) count++;
     }
     return (count);
 }
