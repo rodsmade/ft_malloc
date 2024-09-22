@@ -1,6 +1,6 @@
 #include "tests.h"
 
-void assert(int comparison) {
+void ft_assert(int comparison) {
     if (comparison) {
         ft_putstr_fd(BOLD_GREEN "OK" RESET, 1);
     } else {

@@ -13,10 +13,10 @@ void when_allocating_0_bytes_then_LEDGER_should_contain_an_allocation() {
     void *ptr = malloc(ALLOC_SIZE);
 
     // Assert
-    assert(ptr != NULL);
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 1);
-    assert(((void **) g_data.LEDGERS[__TINY])[0] == ptr);
-    assert(((AllocationMetadata *)g_data.ZONES[__TINY])->size == ALLOC_SIZE
+    ft_assert(ptr != NULL);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 1);
+    ft_assert(((void **) g_data.LEDGERS[__TINY])[0] == ptr);
+    ft_assert(((AllocationMetadata *)g_data.ZONES[__TINY])->size == ALLOC_SIZE
         && ((AllocationMetadata *)g_data.ZONES[__TINY])->in_use == TRUE);
 }
 
@@ -29,8 +29,8 @@ void when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK() {
     free(ptr);
 
     // Assert
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 0);
-    assert(((AllocationMetadata *)g_data.ZONES[__TINY])->size == ALLOC_SIZE
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 0);
+    ft_assert(((AllocationMetadata *)g_data.ZONES[__TINY])->size == ALLOC_SIZE
         && ((AllocationMetadata *)g_data.ZONES[__TINY])->in_use == FALSE);
 }
 
@@ -44,10 +44,10 @@ void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_
     // Assert
     AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
 
-    assert(ptr != NULL);
-    assert(((void **) g_data.LEDGERS[__TINY])[0] == ptr);
-    assert(metadata->in_use == TRUE);
-    assert(metadata->size == ALLOC_SIZE);
+    ft_assert(ptr != NULL);
+    ft_assert(((void **) g_data.LEDGERS[__TINY])[0] == ptr);
+    ft_assert(metadata->in_use == TRUE);
+    ft_assert(metadata->size == ALLOC_SIZE);
 }
 
 void when_freeing_10_bytes_then_LEDGER_allocation_should_be_marked_as_unused() {
@@ -61,9 +61,9 @@ void when_freeing_10_bytes_then_LEDGER_allocation_should_be_marked_as_unused() {
     // Assert
     AllocationMetadata *metadata = g_data.ZONES[__TINY];
 
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 0);
-    assert(metadata->size == ALLOC_SIZE);
-    assert(metadata->in_use == FALSE);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 0);
+    ft_assert(metadata->size == ALLOC_SIZE);
+    ft_assert(metadata->in_use == FALSE);
 }
 
 void when_allocating_within_tiny_zone_threshold_then_allocation_should_be_registered_only_in_LEDGER() {
@@ -78,7 +78,7 @@ void when_allocating_within_tiny_zone_threshold_then_allocation_should_be_regist
 
     // Assert
     for (int i = 0; i < 5; i++) {
-        assert(
+        ft_assert(
             ptrs[i] != NULL
             && contains(g_data.LEDGERS[__TINY], ptrs[i])
             && !contains(g_data.LEDGERS[__SMALL], ptrs[i])
@@ -99,7 +99,7 @@ void when_allocating_within_small_zone_threshold_then_allocation_should_be_regis
 
     // Assert
     for (int i = 0; i < 5; i++) {
-        assert(
+        ft_assert(
             ptrs[i] != NULL
             && !contains(g_data.LEDGERS[__TINY], ptrs[i])
             && contains(g_data.LEDGERS[__SMALL], ptrs[i])
@@ -120,7 +120,7 @@ void when_allocating_beyond_small_zone_threshold_then_allocation_should_be_regis
 
     // Assert
     for (int i = 0; i < 5; i++) {
-        assert(
+        ft_assert(
             ptrs[i] != NULL
             && !contains(g_data.LEDGERS[__TINY], ptrs[i])
             && !contains(g_data.LEDGERS[__SMALL], ptrs[i])
@@ -141,7 +141,7 @@ void when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain
 
     // Act + Assert (bc yes lel)
     free(ptrs[0]);
-    assert(
+    ft_assert(
         !contains(g_data.LEDGERS[__LARGE], ptrs[0])
         && contains(g_data.LEDGERS[__LARGE], ptrs[1])
         && contains(g_data.LEDGERS[__LARGE], ptrs[2])
@@ -151,7 +151,7 @@ void when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain
 
     // Act + Assert (bc yes lel)
     free(ptrs[4]);
-    assert(
+    ft_assert(
         !contains(g_data.LEDGERS[__LARGE], ptrs[0])
         && contains(g_data.LEDGERS[__LARGE], ptrs[1])
         && contains(g_data.LEDGERS[__LARGE], ptrs[2])
@@ -161,7 +161,7 @@ void when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain
 
     // Act + Assert (bc yes lel)
     free(ptrs[2]);
-    assert(
+    ft_assert(
         !contains(g_data.LEDGERS[__LARGE], ptrs[0])
         && contains(g_data.LEDGERS[__LARGE], ptrs[1])
         && !contains(g_data.LEDGERS[__LARGE], ptrs[2])
@@ -171,7 +171,7 @@ void when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain
 
     // Act + Assert (bc yes lel)
     free(ptrs[1]);
-    assert(
+    ft_assert(
         !contains(g_data.LEDGERS[__LARGE], ptrs[0])
         && !contains(g_data.LEDGERS[__LARGE], ptrs[1])
         && !contains(g_data.LEDGERS[__LARGE], ptrs[2])
@@ -181,7 +181,7 @@ void when_freeing_a_large_allocation_then_LARGE_ALLOCS_LEDGER_should_not_contain
 
     // Act + Assert (bc yes lel)
     free(ptrs[3]);
-    assert(
+    ft_assert(
         !contains(g_data.LEDGERS[__LARGE], ptrs[0])
         && !contains(g_data.LEDGERS[__LARGE], ptrs[1])
         && !contains(g_data.LEDGERS[__LARGE], ptrs[2])
@@ -220,7 +220,7 @@ void when_pointer_is_not_allocated_by_malloc_then_free_has_no_effect() {
 
     ssize_t bytes_read = read(temp_test_fd, buffer, 100); perror_exit(bytes_read, "read");
 
-    assert(ft_strncmp(expected_err_msg, buffer, ft_strlen(expected_err_msg) + 1) == 0);
+    ft_assert(ft_strncmp(expected_err_msg, buffer, ft_strlen(expected_err_msg) + 1) == 0);
 
     // Cleanup
     close(temp_test_fd);
@@ -236,7 +236,7 @@ void when_allocating_MAX_SIZET_then_malloc_should_return_NULL() {
     ptr = malloc(large_size);
 
     // Assert
-    assert(ptr == NULL);
+    ft_assert(ptr == NULL);
 }
 
 void when_allocating_100_allocations_in_TINY_ZONE_then_malloc_should_behave_OK() {
@@ -248,7 +248,7 @@ void when_allocating_100_allocations_in_TINY_ZONE_then_malloc_should_behave_OK()
         allocs[i] = malloc(TINY_ZONE_THRESHOLD);
 
     // Assert
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 100);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 100);
 }
 
 void when_allocating_100_allocations_in_SMALL_ZONE_then_malloc_should_behave_OK() {
@@ -260,7 +260,7 @@ void when_allocating_100_allocations_in_SMALL_ZONE_then_malloc_should_behave_OK(
         allocs[i] = malloc(SMALL_ZONE_THRESHOLD);
 
     // Assert
-    assert(count_ledger_entries(g_data.LEDGERS[__SMALL]) == 100);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__SMALL]) == 100);
 }
 
 void when_allocating_100_allocations_in_LARGE_ZONE_then_malloc_should_behave_OK() {
@@ -272,7 +272,7 @@ void when_allocating_100_allocations_in_LARGE_ZONE_then_malloc_should_behave_OK(
         allocs[i] = malloc(SMALL_ZONE_THRESHOLD * 2);
 
     // Assert
-    assert(count_ledger_entries(g_data.LEDGERS[__LARGE]) == 100);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__LARGE]) == 100);
 
     // Free
     for (int i = 0; i < 100; i++)
@@ -293,9 +293,9 @@ void when_allocating_100_allocations_of_each_zone_at_once_then_malloc_should_beh
     }
 
     // Assert
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 100);
-    assert(count_ledger_entries(g_data.LEDGERS[__SMALL]) == 100);
-    assert(count_ledger_entries(g_data.LEDGERS[__LARGE]) == 100);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 100);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__SMALL]) == 100);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__LARGE]) == 100);
 
     // Free
     for (int i = 0; i < 100; i++)
@@ -317,8 +317,8 @@ void when_allocating_beyond_maximum_capacity_for_TINY_ZONE_then_malloc_should_re
     for (size_t i = MIN_NB_ENTRIES; i < ALLOCS_COUNT; i++) {
         rest_is_null = rest_is_null && (allocs[i] == NULL);
     }
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) >= MIN_NB_ENTRIES);
-    assert(rest_is_null);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__TINY]) >= MIN_NB_ENTRIES);
+    ft_assert(rest_is_null);
 }
 
 void when_allocating_beyond_maximum_capacity_for_SMALL_ZONE_then_malloc_should_return_NULL() {
@@ -336,8 +336,8 @@ void when_allocating_beyond_maximum_capacity_for_SMALL_ZONE_then_malloc_should_r
     for (size_t i = MIN_NB_ENTRIES; i < ALLOCS_COUNT; i++) {
         rest_is_null = rest_is_null && (allocs[i] == NULL);
     }
-    assert(count_ledger_entries(g_data.LEDGERS[__SMALL]) >= MIN_NB_ENTRIES);
-    assert(rest_is_null);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__SMALL]) >= MIN_NB_ENTRIES);
+    ft_assert(rest_is_null);
 }
 
 void when_TINY_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry() {
@@ -353,9 +353,9 @@ void when_TINY_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_sho
     void *new_ptr = malloc(TINY_ZONE_THRESHOLD);
 
     // Assert
-    assert(new_ptr == allocs[42]);
-    assert(contains(g_data.LEDGERS[__TINY], new_ptr));
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 113);
+    ft_assert(new_ptr == allocs[42]);
+    ft_assert(contains(g_data.LEDGERS[__TINY], new_ptr));
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 113);
 }
 
 void when_SMALL_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry() {
@@ -371,9 +371,9 @@ void when_SMALL_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_sh
     void *new_ptr = malloc(SMALL_ZONE_THRESHOLD);
 
     // Assert
-    assert(new_ptr == allocs[42]);
-    assert(contains(g_data.LEDGERS[__SMALL], new_ptr));
-    assert(count_ledger_entries(g_data.LEDGERS[__SMALL]) == 100);
+    ft_assert(new_ptr == allocs[42]);
+    ft_assert(contains(g_data.LEDGERS[__SMALL], new_ptr));
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__SMALL]) == 100);
 }
 
 void when_passing_NULL_to_realloc_then_realloc_should_return_a_pointer_and_produce_no_frees() {
@@ -386,9 +386,9 @@ void when_passing_NULL_to_realloc_then_realloc_should_return_a_pointer_and_produ
     void *rptr2 = realloc(NULL, 0);
 
     // Assert
-    assert(rptr != NULL);
-    assert(rptr2 != NULL);
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 3);
+    ft_assert(rptr != NULL);
+    ft_assert(rptr2 != NULL);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 3);
 }
 
 void when_passing_ptr_and_0_to_realloc_then_realloc_should_free_ptr_and_return_NULL() {
@@ -399,8 +399,8 @@ void when_passing_ptr_and_0_to_realloc_then_realloc_should_free_ptr_and_return_N
     void *rptr = realloc(ptr, 0);
 
     // Assert
-    assert(rptr == NULL);
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 0);
+    ft_assert(rptr == NULL);
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 0);
 }
 
 void when_passing_new_size_equal_to_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer() {
@@ -411,8 +411,8 @@ void when_passing_new_size_equal_to_old_size_then_realloc_should_free_ptr_and_al
     void *rptr = realloc(ptr, 42);
 
     // Assert
-    assert(rptr == ptr); // se justifica pelo reuso
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 1);
+    ft_assert(rptr == ptr); // se justifica pelo reuso
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 1);
 }
 
 void when_passing_new_siz__SMALLer_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer() {
@@ -423,8 +423,8 @@ void when_passing_new_siz__SMALLer_than_old_size_then_realloc_should_free_ptr_an
     void *rptr = realloc(ptr, 4);
 
     // Assert
-    assert(rptr == ptr); // se justifica pelo reuso
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 1);
+    ft_assert(rptr == ptr); // se justifica pelo reuso
+    ft_assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 1);
 }
 
 void when_passing_new_size_greater_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer() {
@@ -435,8 +435,8 @@ void when_passing_new_size_greater_than_old_size_then_realloc_should_free_ptr_an
     void *rptr = realloc(ptr, 420);
 
     // Assert
-    assert(rptr != ptr);
-    assert(
+    ft_assert(rptr != ptr);
+    ft_assert(
         count_ledger_entries(g_data.LEDGERS[__TINY]) == 0
         && count_ledger_entries(g_data.LEDGERS[__SMALL]) == 1
     );
@@ -472,8 +472,8 @@ void when_pointer_has_not_been_previously_allocated_then_free_has_no_effect_and_
 
     ssize_t bytes_read = read(temp_test_fd, buffer, 100); perror_exit(bytes_read, "read");
 
-    assert(ft_strncmp(expected_err_msg, buffer, ft_strlen(expected_err_msg) + 1) == 0);
-    assert(ptr == NULL);
+    ft_assert(ft_strncmp(expected_err_msg, buffer, ft_strlen(expected_err_msg) + 1) == 0);
+    ft_assert(ptr == NULL);
 
     // Cleanup
     close(temp_test_fd);

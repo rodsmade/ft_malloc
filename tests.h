@@ -25,7 +25,7 @@ typedef void (*TestFunction)();
 #define RUN_TEST_CASE(test_func) run_test_case(test_func, #test_func)
 
 // Prototypes
-void    assert(int comparison);
+void    ft_assert(int comparison);
 bool    contains(void *array, void *ptr);
 void    perror_exit(int condition, const char* err_msg);
 void    print_test_index(unsigned int index);
