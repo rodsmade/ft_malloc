@@ -28,6 +28,7 @@
 // MACROS
 # define TINY_ZONE_THRESHOLD 128
 # define SMALL_ZONE_THRESHOLD 4096
+# define MIN_NB_ENTRIES 1024
 # define CUSTOM_MALLOC_UPPER_LIMIT 8589934592
 # define TRUE 1
 # define FALSE 0
@@ -51,25 +52,22 @@ typedef char bool;
 // INLINE FUNCTIONS
 static inline int get_tiny_zone_size() {
 	static int tiny_zone_size = 0;
-	if (tiny_zone_size == 0) {
-		tiny_zone_size = 4 * PAGE_SIZE;
-	}
+	if (tiny_zone_size == 0)
+		tiny_zone_size = (((MIN_NB_ENTRIES * TINY_ZONE_THRESHOLD + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE);
 	return tiny_zone_size;
 }
 
 static inline int get_small_zone_size() {
 	static int small_zone_size = 0;
-	if (small_zone_size == 0) {
-		small_zone_size = 101 * PAGE_SIZE;
-	}
+	if (small_zone_size == 0)
+		small_zone_size = (((MIN_NB_ENTRIES * SMALL_ZONE_THRESHOLD + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE);
 	return small_zone_size;
 }
 
 static inline int get_ledger_size() {
 	static int ledger_size = 0;
-	if (ledger_size == 0) {
-		ledger_size = 1 * PAGE_SIZE;
-	}
+	if (ledger_size == 0)
+		ledger_size = (((MIN_NB_ENTRIES * sizeof(AllocationMetadata) + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE);
 	return ledger_size;
 }
 

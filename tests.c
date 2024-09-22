@@ -304,37 +304,39 @@ void when_allocating_100_allocations_of_each_zone_at_once_then_malloc_should_beh
 
 void when_allocating_beyond_maximum_capacity_for_TINY_ZONE_then_malloc_should_return_NULL() {
     // Arrange
-    void *allocs[1000];
+    size_t ALLOCS_COUNT = 10 * MIN_NB_ENTRIES;
+    void *allocs[ALLOCS_COUNT];
 
     // Act
-    for (int i = 0; i < 1000; i++) {
+    for (size_t i = 0; i < ALLOCS_COUNT; i++) {
         allocs[i] = malloc(TINY_ZONE_THRESHOLD);
     }
 
     // Assert
     bool rest_is_null = TRUE;
-    for (int i = 113; i < 1000; i++) {
+    for (size_t i = MIN_NB_ENTRIES; i < ALLOCS_COUNT; i++) {
         rest_is_null = rest_is_null && (allocs[i] == NULL);
     }
-    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) == 113);
+    assert(count_ledger_entries(g_data.LEDGERS[__TINY]) >= MIN_NB_ENTRIES);
     assert(rest_is_null);
 }
 
 void when_allocating_beyond_maximum_capacity_for_SMALL_ZONE_then_malloc_should_return_NULL() {
     // Arrange
-    void *allocs[1000];
+    size_t ALLOCS_COUNT = 10 * MIN_NB_ENTRIES;
+    void *allocs[ALLOCS_COUNT];
 
     // Act
-    for (int i = 0; i < 1000; i++) {
+    for (size_t i = 0; i < ALLOCS_COUNT; i++) {
         allocs[i] = malloc(SMALL_ZONE_THRESHOLD);
     }
 
     // Assert
     bool rest_is_null = TRUE;
-    for (int i = 100; i < 1000; i++) {
+    for (size_t i = MIN_NB_ENTRIES; i < ALLOCS_COUNT; i++) {
         rest_is_null = rest_is_null && (allocs[i] == NULL);
     }
-    assert(count_ledger_entries(g_data.LEDGERS[__SMALL]) == 100); // 100 = SMALL_ZONE max capacity
+    assert(count_ledger_entries(g_data.LEDGERS[__SMALL]) >= MIN_NB_ENTRIES);
     assert(rest_is_null);
 }
 
