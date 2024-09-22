@@ -49,8 +49,9 @@ typedef char bool;
 
 // DATA STRUCTURES
 typedef struct AllocationMetadata {
-	char		in_use;
-	size_t		size;
+	void	*ptr;
+	size_t	size;
+	char	in_use;
 } AllocationMetadata;
 
 typedef struct GlobalData {
@@ -104,7 +105,7 @@ void	show_alloc_mem(void);
 void	*allocate_in_zone(size_t size, e_tags zone);
 void	*allocate_out_of_zone(size_t size);
 bool	contains(void *array, void *ptr);
-void	*pop(void *array, void *ptr);
+void	*pop(e_tags zone, void *ptr);
 void	*push_to_back(void *array, void *ptr);
 void	*safe_mmap(size_t size);
 

@@ -71,38 +71,33 @@ void	free(void *ptr) {
 
 	// checar se o ptr passado de fato é um ponteiro que eu dei malloc.
 	int i = -1;
-	while (((void **)g_data.LEDGERS[__TINY])[++i]) {
-		if (((void **)g_data.LEDGERS[__TINY])[i] == ptr) {
-			// dar free
-			AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
-			metadata->in_use = FALSE;
-			pop(g_data.LEDGERS[__TINY], ptr);
-			return ;
-		}
-	}
+	// while (((void **)g_data.LEDGERS[__TINY])[++i]) {
+	// 	if (((void **)g_data.LEDGERS[__TINY])[i] == ptr) {
+	// 		// dar free
+	// 		AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
+	// 		metadata->in_use = FALSE;
+	// 		pop(g_data.LEDGERS[__TINY], ptr);
+	// 		return ;
+	// 	}
+	// }
+	// i = -1;
+	// while (((void **)g_data.LEDGERS[__SMALL])[++i]) {
+	// 	if (((void **)g_data.LEDGERS[__SMALL])[i] == ptr) {
+	// 		// dar free
+	// 		AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
+	// 		metadata->in_use = FALSE;
+	// 		pop(g_data.LEDGERS[__SMALL], ptr);
+	// 		return ;
+	// 	}
+	// }
 	i = -1;
-	while (((void **)g_data.LEDGERS[__SMALL])[++i]) {
-		if (((void **)g_data.LEDGERS[__SMALL])[i] == ptr) {
-			// dar free
-			AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
-			metadata->in_use = FALSE;
-			pop(g_data.LEDGERS[__SMALL], ptr);
-			return ;
-		}
-	}
-	i = -1;
-	while (((void **)g_data.LEDGERS[__LARGE])[++i]) {
-		if (((void **)g_data.LEDGERS[__LARGE])[i] == ptr) {
-			// dar free
-			void *allocation_head = (void *)ptr - sizeof(AllocationMetadata);
-			size_t alloc_size = ((AllocationMetadata *)allocation_head)->size;
-
+	while (((AllocationMetadata *) g_data.LEDGERS[__LARGE])[++i].ptr) {
+		if (((AllocationMetadata *) g_data.LEDGERS[__LARGE])[i].ptr == ptr) {
 			// return memory to system
-			munmap(allocation_head, sizeof(AllocationMetadata) + alloc_size);
+			munmap(((AllocationMetadata *) g_data.LEDGERS[__LARGE])[i].ptr, ((AllocationMetadata *) g_data.LEDGERS[__LARGE])[i].size);
 
-			// remove entry from ledger
-			g_data.LEDGERS[__LARGE] = pop(g_data.LEDGERS[__LARGE], ptr);
-
+			// pop entry from ledger;
+			pop(__LARGE, ptr);
 			return ;
 		}
 	}

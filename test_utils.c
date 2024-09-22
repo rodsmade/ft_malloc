@@ -49,11 +49,9 @@ void run_test_case(TestFunction test_func, const char *test_name) {
 
     // RESET MEMORY BETWEEN TESTS
     // go through large allocs ledgers and unmap
-    for (int i = 0; ((void **)g_data.LEDGERS[__LARGE])[i]; i++) {
-        void *ptr = ((void **)g_data.LEDGERS[__LARGE])[i];
-        void *allocation_head = (void *)ptr - sizeof(AllocationMetadata);
-        size_t alloc_size = ((AllocationMetadata *)allocation_head)->size;
-        munmap(ptr, alloc_size);
+    for (int i = 0; ((AllocationMetadata *)g_data.LEDGERS[__LARGE])[i].ptr; i++) {
+        AllocationMetadata entry = ((AllocationMetadata *)g_data.LEDGERS[__LARGE])[i];
+        munmap(entry.ptr, entry.size);
     }
     // unset every byte in ledgers
     ft_bzero(g_data.LEDGERS[__TINY], get_ledger_size());

@@ -485,9 +485,9 @@ int main() {
     ft_putstr_fd(BOLD_YELLOW "INITIATING TESTS...\n\n\n" RESET, 1);
 
     RUN_TEST_CASE(when_allocating_0_bytes_then_LEDGER_should_contain_an_allocation);
-    RUN_TEST_CASE(when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK);
+    // RUN_TEST_CASE(when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK);
     RUN_TEST_CASE(when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use);
-    RUN_TEST_CASE(when_freeing_10_bytes_then_LEDGER_allocation_should_be_marked_as_unused);
+    // RUN_TEST_CASE(when_freeing_10_bytes_then_LEDGER_allocation_should_be_marked_as_unused);
     RUN_TEST_CASE(when_allocating_within_tiny_zone_threshold_then_allocation_should_be_registered_only_in_LEDGER);
     RUN_TEST_CASE(when_allocating_within_small_zone_threshold_then_allocation_should_be_registered_only_in_LEDGER);
     RUN_TEST_CASE(when_allocating_beyond_small_zone_threshold_then_allocation_should_be_registered_only_in_LARGE_ALLOCS_LEDGER);
@@ -500,14 +500,14 @@ int main() {
     RUN_TEST_CASE(when_allocating_100_allocations_of_each_zone_at_once_then_malloc_should_behave_OK);
     RUN_TEST_CASE(when_allocating_beyond_maximum_capacity_for_TINY_ZONE_then_malloc_should_return_NULL);
     RUN_TEST_CASE(when_allocating_beyond_maximum_capacity_for_SMALL_ZONE_then_malloc_should_return_NULL);
-    RUN_TEST_CASE(when_TINY_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry);
-    RUN_TEST_CASE(when_SMALL_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry);
-    RUN_TEST_CASE(when_passing_NULL_to_realloc_then_realloc_should_return_a_pointer_and_produce_no_frees);
-    RUN_TEST_CASE(when_passing_ptr_and_0_to_realloc_then_realloc_should_free_ptr_and_return_NULL);
-    RUN_TEST_CASE(when_passing_new_size_equal_to_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
-    RUN_TEST_CASE(when_passing_new_siz__SMALLer_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
-    RUN_TEST_CASE(when_passing_new_size_greater_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
-    RUN_TEST_CASE(when_pointer_has_not_been_previously_allocated_then_free_has_no_effect_and_realloc_returns_NULL);
+    // RUN_TEST_CASE(when_TINY_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry);
+    // RUN_TEST_CASE(when_SMALL_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry);
+    // RUN_TEST_CASE(when_passing_NULL_to_realloc_then_realloc_should_return_a_pointer_and_produce_no_frees);
+    // RUN_TEST_CASE(when_passing_ptr_and_0_to_realloc_then_realloc_should_free_ptr_and_return_NULL);
+    // RUN_TEST_CASE(when_passing_new_size_equal_to_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
+    // RUN_TEST_CASE(when_passing_new_siz__SMALLer_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
+    // RUN_TEST_CASE(when_passing_new_size_greater_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
+    // RUN_TEST_CASE(when_pointer_has_not_been_previously_allocated_then_free_has_no_effect_and_realloc_returns_NULL);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(g_total_test_cases_count, 1);

@@ -37,14 +37,17 @@ void *allocate_in_zone(size_t size, e_tags zone) {
 }
 
 void *allocate_out_of_zone(size_t size) {
-	void *chunk = safe_mmap(size + sizeof(AllocationMetadata));
+	void *chunk = safe_mmap(size);
 	if (chunk) {
-		// Fills in metadata
-		((AllocationMetadata *) chunk)->size = size;
-
-		// Push pointer to g_data.LEDGERS[__LARGE]
-		chunk = (void *) chunk + sizeof(AllocationMetadata); // advances chunk to actual start of ptr
-		g_data.LEDGERS[__LARGE] = push_to_back(g_data.LEDGERS[__LARGE], chunk);
+		AllocationMetadata *ledger_entry = g_data.LEDGERS[__LARGE];
+		// Find next empty ledger entry
+		int i = -1;
+		while (ledger_entry[++i].in_use)
+			continue ;
+		// Add new entry to ledger
+		ledger_entry[i].ptr = chunk;
+		ledger_entry[i].in_use = TRUE;
+		ledger_entry[i].size = size;
 	}
 	return (chunk);
 }
@@ -57,20 +60,26 @@ bool contains(void *array, void *ptr) {
 	return FALSE;
 }
 
-void *pop(void *array, void *ptr) {
+void *pop(e_tags zone, void *ptr) {
+	AllocationMetadata *ledger = ((AllocationMetadata *) g_data.LEDGERS[zone]);
+
 	int i = -1;
-	while (((void **)array)[++i] && ((void **)array)[i] != ptr)
+	while (ledger[++i].ptr && ledger[i].ptr != ptr)
 		;
 
-	if (((void **)array)[i]) {
-		while (((void **)array)[i + 1]) {
-			((void **)array)[i] = ((void **)array)[i + 1];
+	if (ledger[i].ptr) {
+		while (ledger[i + 1].ptr) {
+			ledger[i].ptr = ledger[i + 1].ptr;
+			ledger[i].size = ledger[i + 1].size;
+			ledger[i].in_use = ledger[i + 1].in_use;
 			i++;
 		}
-		((void **)array)[i] = NULL;
+		ledger[i].ptr = NULL;
+		ledger[i].size = 0;
+		ledger[i].in_use = FALSE;
 	}
 
-	return (array);
+	return ((void *) ledger);
 }
 
 void *push_to_back(void *array, void *ptr) {
