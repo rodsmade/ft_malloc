@@ -42,12 +42,10 @@ void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_
     void *ptr = malloc(ALLOC_SIZE);
 
     // Assert
-    AllocationMetadata *metadata = ptr - sizeof(AllocationMetadata);
-
     ft_assert(ptr != NULL);
-    ft_assert(((void **) g_data.LEDGERS[__TINY])[0] == ptr);
-    ft_assert(metadata->in_use == TRUE);
-    ft_assert(metadata->size == ALLOC_SIZE);
+    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->ptr == ptr);
+    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->in_use == TRUE);
+    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->size == ALLOC_SIZE);
 }
 
 void when_freeing_10_bytes_then_LEDGER_allocation_should_be_marked_as_unused() {
@@ -59,11 +57,9 @@ void when_freeing_10_bytes_then_LEDGER_allocation_should_be_marked_as_unused() {
     free(ptr);
 
     // Assert
-    AllocationMetadata *metadata = g_data.ZONES[__TINY];
-
     ft_assert(count_ledger_entries(__TINY) == 0);
-    ft_assert(metadata->size == ALLOC_SIZE);
-    ft_assert(metadata->in_use == FALSE);
+    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->size == ALLOC_SIZE);
+    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->in_use == FALSE);
 }
 
 void when_allocating_within_tiny_zone_threshold_then_allocation_should_be_registered_only_in_LEDGER() {
@@ -342,10 +338,10 @@ void when_allocating_beyond_maximum_capacity_for_SMALL_ZONE_then_malloc_should_r
 
 void when_TINY_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry() {
     // Arrange
-    void *allocs[113]; // 113 = TINY_ZONE max capacity
+    void *allocs[MIN_NB_ENTRIES];
 
     // Act
-    for (int i = 0; i < 113; i++) {
+    for (int i = 0; i < MIN_NB_ENTRIES; i++) {
         allocs[i] = malloc(TINY_ZONE_THRESHOLD);
     }
     free(allocs[42]);
@@ -355,7 +351,7 @@ void when_TINY_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_sho
     // Assert
     ft_assert(new_ptr == allocs[42]);
     ft_assert(contains(g_data.LEDGERS[__TINY], new_ptr));
-    ft_assert(count_ledger_entries(__TINY) == 113);
+    ft_assert(count_ledger_entries(__TINY) == MIN_NB_ENTRIES);
 }
 
 void when_SMALL_ZONE_reaches_full_capacity_and_a_pointer_is_freed_then_malloc_should_reuse_the_old_entry() {
