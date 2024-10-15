@@ -61,21 +61,21 @@ typedef struct GlobalData {
 } t_global_data;
 
 // INLINE FUNCTIONS
-static inline int get_tiny_zone_size() {
+static inline int get_tiny_zone_size_in_bytes() {
 	static int tiny_zone_size = 0;
 	if (tiny_zone_size == 0)
 		tiny_zone_size = (((MIN_NB_ENTRIES * TINY_ZONE_THRESHOLD + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE);
 	return tiny_zone_size;
 }
 
-static inline int get_small_zone_size() {
+static inline int get_small_zone_size_in_bytes() {
 	static int small_zone_size = 0;
 	if (small_zone_size == 0)
 		small_zone_size = (((MIN_NB_ENTRIES * SMALL_ZONE_THRESHOLD + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE);
 	return small_zone_size;
 }
 
-static inline int get_ledger_size() {
+static inline int get_ledger_size_in_bytes() {
 	static int ledger_size = 0;
 	if (ledger_size == 0)
 		ledger_size = (((MIN_NB_ENTRIES * sizeof(AllocationMetadata) + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE);

@@ -22,9 +22,9 @@ t_global_data g_data = {
 __attribute__((constructor))
 void prologue() {
 	// Initialize capacities
-	g_data.CAPACITIES[__TINY] = get_tiny_zone_size();
-	g_data.CAPACITIES[__SMALL] = get_small_zone_size();
-	g_data.CAPACITIES[__LEDGER] = get_ledger_size();
+	g_data.CAPACITIES[__TINY] = get_tiny_zone_size_in_bytes();
+	g_data.CAPACITIES[__SMALL] = get_small_zone_size_in_bytes();
+	g_data.CAPACITIES[__LEDGER] = get_ledger_size_in_bytes();
 
 	AllocationMetadata *entry;
 
@@ -199,8 +199,8 @@ void show_alloc_mem(void) {
 void epilogue() __attribute__((destructor));
 
 void epilogue() {
-	munmap(g_data.ZONES[__TINY], get_tiny_zone_size());
-	munmap(g_data.ZONES[__SMALL], get_small_zone_size());
+	munmap(g_data.ZONES[__TINY], get_tiny_zone_size_in_bytes());
+	munmap(g_data.ZONES[__SMALL], get_small_zone_size_in_bytes());
 
 	// Go through large allocs ledgers and unmap
 	for (int i = 0; ((void **)g_data.LEDGERS[__LARGE])[i]; i++) {

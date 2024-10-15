@@ -55,13 +55,13 @@ void run_test_case(TestFunction test_func, const char *test_name) {
         munmap(entry.ptr, entry.size);
     }
     // unset every byte in ledgers
-    ft_bzero(g_data.LEDGERS[__TINY], get_ledger_size());
-    ft_bzero(g_data.LEDGERS[__SMALL], get_ledger_size());
-    ft_bzero(g_data.LEDGERS[__LARGE], get_ledger_size());
+    ft_bzero(g_data.LEDGERS[__TINY], get_ledger_size_in_bytes());
+    ft_bzero(g_data.LEDGERS[__SMALL], get_ledger_size_in_bytes());
+    ft_bzero(g_data.LEDGERS[__LARGE], get_ledger_size_in_bytes());
 
     // unset every byte in allocation zones
-    ft_bzero(g_data.ZONES[__TINY], get_tiny_zone_size());
-    ft_bzero(g_data.ZONES[__SMALL], get_small_zone_size());
+    ft_bzero(g_data.ZONES[__TINY], get_tiny_zone_size_in_bytes());
+    ft_bzero(g_data.ZONES[__SMALL], get_small_zone_size_in_bytes());
 }
 
 void perror_exit(int condition, const char* err_msg) {
