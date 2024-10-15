@@ -41,8 +41,9 @@ void *allocate_out_of_zone(size_t size) {
 }
 
 bool contains(void *array, void *ptr) {
-	for (int i = 0; ((void **)array)[i]; i++) {
-		if (((void **)array)[i] == ptr)
+	AllocationMetadata *ledger = array;
+	for (int i = 0; ledger[i].ptr; i++) {
+		if (ledger[i].ptr == ptr)
 			return TRUE;
 	}
 	return FALSE;
