@@ -21,7 +21,8 @@ size_t count_ledger_entries(e_tags zone) {
     AllocationMetadata *ledger = g_data.LEDGERS[zone];
 
     size_t count = 0;
-    for (size_t i = 0; ledger[i].ptr; i++) {
+
+    for (size_t i = 0; ledger[i].ptr && i < MIN_NB_ENTRIES; i++) {
         if (ledger[i].in_use) count++;
     }
     return (count);
