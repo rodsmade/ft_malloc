@@ -1,4 +1,4 @@
-CC = gcc -Werror -Wextra -Wall
+CC = gcc -Werror -Wextra -Wall -g3
 
 # Check if HOSTTYPE variable is set
 ifeq ($(HOSTTYPE),)
@@ -13,8 +13,8 @@ SRC = ft_malloc.c utils.c
 
 all: $(LIBNAME)
 
-$(LIBNAME): libft/libft.a $(SRC)
-	$(CC) -shared -o $(LIBNAME) -fPIC $(SRC) -g3 -L./libft -lft -I ./libft/include
+$(LIBNAME): libft/libft.a $(SRC) ft_malloc.h
+	$(CC) -shared -o $(LIBNAME) -fPIC $(SRC) -L./libft -lft -I ./libft/include
 	ln -sf $(LIBNAME) libft_malloc.so
 
 libft/libft.a: libft/Makefile
@@ -29,7 +29,7 @@ fclean: clean
 	rm -f main.out
 
 main.out: $(LIBNAME) main.c
-	$(CC) main.c -g3 -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -L./libft -I./libft/include -lft -o $@
+	$(CC) main.c -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -L./libft -I./libft/include -lft -o $@
 
 main: main.out
 
@@ -43,8 +43,10 @@ re: fclean $(LIBNAME)
 
 rerun: re run
 
-tests: $(LIBNAME) tests.c
+tests.out: $(LIBNAME) tests.c
 	$(CC) tests.c test_utils.c -Wl,-rpath,. -lft_malloc_x86_64_Linux -L. -L./libft -I./libft/include -lft -o tests.out
+
+tests: tests.out
 	./tests.out
 	rm ./tests.out
 
