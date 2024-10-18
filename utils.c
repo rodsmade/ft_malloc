@@ -13,7 +13,8 @@ void *allocate_in_zone(size_t size, e_tags zone) {
 
 		// Checks for the possibility to reuse previously allocated chunks
 		if (!ledger[i].in_use && ledger[i].size >= size) {
-			break ;
+			ledger[i].in_use = TRUE;
+			return (ledger[i].ptr);
 		}
 	}
 	// Marks memory chunk as used
