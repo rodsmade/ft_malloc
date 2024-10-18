@@ -26,7 +26,7 @@
 // MACROS
 # define TINY_ZONE_THRESHOLD 128
 # define SMALL_ZONE_THRESHOLD 4096
-# define MIN_NB_ENTRIES 1024
+# define MIN_NB_ENTRIES 2048
 # define CUSTOM_MALLOC_UPPER_LIMIT 8589934592
 # define TRUE 1
 # define FALSE 0
@@ -48,16 +48,16 @@ typedef enum {
 typedef char bool;
 
 // DATA STRUCTURES
-typedef struct AllocationMetadata {
+typedef struct AllocationMetadata { // rename to s_ and e_ conventions
 	void	*ptr;
 	size_t	size;
 	char	in_use;
 } AllocationMetadata;
 
 typedef struct GlobalData {
-	void *ZONES[3];
-	void *LEDGERS[3];
-	size_t CAPACITIES[4];
+	void	*ZONES[3];
+	void	*LEDGERS[3];
+	size_t	CAPACITIES[4];
 } t_global_data;
 
 // INLINE FUNCTIONS
