@@ -411,7 +411,7 @@ void when_passing_new_size_equal_to_old_size_then_realloc_should_free_ptr_and_al
     ft_assert(count_ledger_entries(__TINY).in_use == 1);
 }
 
-void when_passing_new_siz__SMALLer_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer() {
+void when_passing_new_size_smaller_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer() {
     // Arrange
     void *ptr = malloc(42);
 
@@ -476,6 +476,96 @@ void when_pointer_has_not_been_previously_allocated_then_free_has_no_effect_and_
     remove(test_file_name);
 }
 
+void when_pointers_have_been_freed_but_new_allocation_is_bigger_than_reusable_chunks_then_ledger_total_count_should_increase() {
+    // Arrange
+    void *allocs[512];
+    for (int i = 0; i < 512; i++) {
+        allocs[i] = malloc(512);
+    }
+    for (int i = 0; i < 512; i++) {
+        free(allocs[i]);
+    }
+    size_t og_total_count = count_ledger_entries(__SMALL).total;
+
+    // Act
+    for (int i = 0; i < 512; i++) {
+        allocs[i] = malloc(512 * 2);
+    }
+    size_t total_count_after_reuse = count_ledger_entries(__SMALL).total;
+
+    // Assert
+    ft_assert(total_count_after_reuse > og_total_count);
+}
+
+void when_pointers_have_been_freed_and_new_allocation_is_smaller_than_reusable_chunks_then_reusable_chunks_ledger_total_count_should_remain_the_same() {
+    // Arrange
+    void *allocs[512];
+    for (int i = 0; i < 512; i++) {
+        allocs[i] = malloc(512);
+    }
+    for (int i = 0; i < 512; i++) {
+        free(allocs[i]);
+    }
+    size_t og_total_count = count_ledger_entries(__SMALL).total;
+
+    // Act
+    for (int i = 0; i < 512; i++) {
+        allocs[i] = malloc(512 / 2);
+    }
+    size_t total_count_after_reuse = count_ledger_entries(__SMALL).total;
+
+    // Assert
+    ft_assert(total_count_after_reuse == og_total_count);
+}
+
+void when_some_pointers_have_been_freed_and_new_allocation_is_bigger_than_reusable_chunks_then_ledger_total_count_should_increase_and_in_use_count_should_remain_the_same() {
+    // Arrange
+    void *allocs[1024];
+    for (int i = 0; i < 1024; i++) {
+        allocs[i] = malloc(1024);
+    }
+    size_t og_total_count = count_ledger_entries(__SMALL).total; // expected: 1024
+    size_t og_in_use_count = count_ledger_entries(__SMALL).in_use; // expected: 1024
+
+    // Act
+    for (int i = 0; i < 512; i++) {
+        free(allocs[i]);
+    }
+    for (int i = 0; i < 512; i++) {
+        allocs[i] = malloc(2048);
+    }
+    size_t total_count_after_reuse = count_ledger_entries(__SMALL).total; // expected: 1024 + 512
+    size_t in_use_count_after_reuse = count_ledger_entries(__SMALL).in_use; // expected: 1024
+
+    // Assert
+    ft_assert(total_count_after_reuse > og_total_count);
+    ft_assert(in_use_count_after_reuse == og_in_use_count);
+}
+
+void when_some_pointers_have_been_freed_and_new_allocation_is_smaller_than_reusable_chunks_then_ledger_total_count_should_not_increase_and_in_use_count_should_remain_the_same() {
+    // Arrange
+    void *allocs[1024];
+    for (int i = 0; i < 1024; i++) {
+        allocs[i] = malloc(1024);
+    }
+    size_t og_total_count = count_ledger_entries(__SMALL).total; // expected: 1024
+    size_t og_in_use_count = count_ledger_entries(__SMALL).in_use; // expected: 1024
+
+    // Act
+    for (int i = 0; i < 512; i++) {
+        free(allocs[i]);
+    }
+    for (int i = 0; i < 512; i++) {
+        allocs[i] = malloc(512);
+    }
+    size_t total_count_after_reuse = count_ledger_entries(__SMALL).total; // expected: 1024
+    size_t in_use_count_after_reuse = count_ledger_entries(__SMALL).in_use; // expected: 1024
+
+    // Assert
+    ft_assert(total_count_after_reuse == og_total_count);
+    ft_assert(in_use_count_after_reuse == og_in_use_count);
+}
+
 int main() {
 
     ft_putstr_fd(BOLD_YELLOW "INITIATING TESTS...\n\n\n" RESET, 1);
@@ -501,9 +591,13 @@ int main() {
     RUN_TEST_CASE(when_passing_NULL_to_realloc_then_realloc_should_return_a_pointer_and_produce_no_frees);
     RUN_TEST_CASE(when_passing_ptr_and_0_to_realloc_then_realloc_should_free_ptr_and_return_NULL);
     RUN_TEST_CASE(when_passing_new_size_equal_to_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
-    RUN_TEST_CASE(when_passing_new_siz__SMALLer_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
+    RUN_TEST_CASE(when_passing_new_size_smaller_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
     RUN_TEST_CASE(when_passing_new_size_greater_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
     RUN_TEST_CASE(when_pointer_has_not_been_previously_allocated_then_free_has_no_effect_and_realloc_returns_NULL);
+    RUN_TEST_CASE(when_pointers_have_been_freed_but_new_allocation_is_bigger_than_reusable_chunks_then_ledger_total_count_should_increase);
+    RUN_TEST_CASE(when_pointers_have_been_freed_and_new_allocation_is_smaller_than_reusable_chunks_then_reusable_chunks_ledger_total_count_should_remain_the_same);
+    RUN_TEST_CASE(when_some_pointers_have_been_freed_and_new_allocation_is_bigger_than_reusable_chunks_then_ledger_total_count_should_increase_and_in_use_count_should_remain_the_same);
+    RUN_TEST_CASE(when_some_pointers_have_been_freed_and_new_allocation_is_smaller_than_reusable_chunks_then_ledger_total_count_should_not_increase_and_in_use_count_should_remain_the_same);
 
     ft_putstr_fd("\n\nTOTAL TEST CASES: ", 1);
     ft_putnbr_fd(g_total_test_cases_count, 1);

@@ -16,9 +16,10 @@
 
 ## Fix
 - [x] jogar metadados pra página dos ledgers
-    - [ ] edge case quando o reuso não é possível mas ainda tem alocação mais pra frente
+- [x] edge case quando o reuso não é possível mas ainda tem alocação mais pra frente
 - [ ] 1024 x 1024
 - [ ] realloc kakakakak
 - [ ] show_alloc_mem comendo entradas
 - [ ] hexdump
+- [ ] mutexes 👀
 - [ ] refatorar free pra ficar bonito vai
