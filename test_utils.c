@@ -17,15 +17,19 @@ bool contains(void *array, void *ptr) {
     return FALSE;
 }
 
-size_t count_ledger_entries(e_tags zone) {
+t_ledger_entries count_ledger_entries(e_tags zone) {
     AllocationMetadata *ledger = g_data.LEDGERS[zone];
 
-    size_t count = 0;
+    size_t in_use = 0;
+    size_t total = 0;
 
     for (size_t i = 0; ledger[i].ptr && i < MIN_NB_ENTRIES; i++) {
-        if (ledger[i].in_use) count++;
+        total++;
+        if (ledger[i].in_use) in_use++;
     }
-    return (count);
+
+    t_ledger_entries result = {in_use, total};
+    return result;
 }
 
 void print_test_index(unsigned int index) {
