@@ -48,17 +48,17 @@ typedef enum {
 typedef char bool;
 
 // DATA STRUCTURES
-typedef struct AllocationMetadata { // rename to s_ and e_ conventions
+typedef struct s_ledger_entry {
 	void	*ptr;
 	size_t	size;
 	char	in_use;
-} AllocationMetadata;
+}	t_ledger_entry;
 
-typedef struct GlobalData {
+typedef struct s_global_data {
 	void	*ZONES[3];
 	void	*LEDGERS[3];
 	size_t	CAPACITIES[4];
-} t_global_data;
+}	t_global_data;
 
 // INLINE FUNCTIONS
 static inline size_t get_tiny_zone_size_in_bytes() {
@@ -78,7 +78,7 @@ static inline size_t get_small_zone_size_in_bytes() {
 static inline size_t get_ledger_size_in_bytes() {
 	static size_t ledger_size = 0;
 	if (ledger_size == 0)
-		ledger_size = (((MIN_NB_ENTRIES * sizeof(AllocationMetadata) + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE);
+		ledger_size = (((MIN_NB_ENTRIES * sizeof(t_ledger_entry) + PAGE_SIZE - 1) / PAGE_SIZE) * PAGE_SIZE);
 	return ledger_size;
 }
 

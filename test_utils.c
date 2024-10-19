@@ -18,7 +18,7 @@ bool contains(void *array, void *ptr) {
 }
 
 t_ledger_entries count_ledger_entries(e_tags zone) {
-    AllocationMetadata *ledger = g_data.LEDGERS[zone];
+    t_ledger_entry *ledger = g_data.LEDGERS[zone];
 
     size_t in_use = 0;
     size_t total = 0;
@@ -55,8 +55,8 @@ void run_test_case(TestFunction test_func, const char *test_name) {
 
     // RESET MEMORY BETWEEN TESTS
     // go through large allocs ledgers and unmap
-    for (int i = 0; ((AllocationMetadata *)g_data.LEDGERS[__LARGE])[i].ptr; i++) {
-        AllocationMetadata entry = ((AllocationMetadata *)g_data.LEDGERS[__LARGE])[i];
+    for (int i = 0; ((t_ledger_entry *)g_data.LEDGERS[__LARGE])[i].ptr; i++) {
+        t_ledger_entry entry = ((t_ledger_entry *)g_data.LEDGERS[__LARGE])[i];
         munmap(entry.ptr, entry.size);
     }
     // unset every byte in ledgers

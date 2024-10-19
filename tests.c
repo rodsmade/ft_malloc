@@ -15,9 +15,9 @@ void when_allocating_0_bytes_then_LEDGER_should_contain_an_allocation() {
     // Assert
     ft_assert(ptr != NULL);
     ft_assert(count_ledger_entries(__TINY).in_use == 1);
-    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->ptr == ptr);
-    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->size == ALLOC_SIZE);
-    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->in_use == TRUE);
+    ft_assert(((t_ledger_entry *) g_data.LEDGERS[__TINY])->ptr == ptr);
+    ft_assert(((t_ledger_entry *) g_data.LEDGERS[__TINY])->size == ALLOC_SIZE);
+    ft_assert(((t_ledger_entry *) g_data.LEDGERS[__TINY])->in_use == TRUE);
 }
 
 void when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK() {
@@ -30,8 +30,8 @@ void when_freeing_0_bytes_previously_allocated_then_everything_should_be_AOK() {
 
     // Assert
     ft_assert(count_ledger_entries(__TINY).in_use == 0);
-    ft_assert(((AllocationMetadata *)g_data.ZONES[__TINY])->size == ALLOC_SIZE
-        && ((AllocationMetadata *)g_data.ZONES[__TINY])->in_use == FALSE);
+    ft_assert(((t_ledger_entry *)g_data.ZONES[__TINY])->size == ALLOC_SIZE
+        && ((t_ledger_entry *)g_data.ZONES[__TINY])->in_use == FALSE);
 }
 
 void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_use() {
@@ -43,9 +43,9 @@ void when_allocating_10_bytes_then_LEDGER_should_contain_entry_with_10_bytes_in_
 
     // Assert
     ft_assert(ptr != NULL);
-    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->ptr == ptr);
-    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->in_use == TRUE);
-    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->size == ALLOC_SIZE);
+    ft_assert(((t_ledger_entry *) g_data.LEDGERS[__TINY])->ptr == ptr);
+    ft_assert(((t_ledger_entry *) g_data.LEDGERS[__TINY])->in_use == TRUE);
+    ft_assert(((t_ledger_entry *) g_data.LEDGERS[__TINY])->size == ALLOC_SIZE);
 }
 
 void when_freeing_10_bytes_then_LEDGER_allocation_should_be_marked_as_unused() {
@@ -58,8 +58,8 @@ void when_freeing_10_bytes_then_LEDGER_allocation_should_be_marked_as_unused() {
 
     // Assert
     ft_assert(count_ledger_entries(__TINY).in_use == 0);
-    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->size == ALLOC_SIZE);
-    ft_assert(((AllocationMetadata *) g_data.LEDGERS[__TINY])->in_use == FALSE);
+    ft_assert(((t_ledger_entry *) g_data.LEDGERS[__TINY])->size == ALLOC_SIZE);
+    ft_assert(((t_ledger_entry *) g_data.LEDGERS[__TINY])->in_use == FALSE);
 }
 
 void when_allocating_within_tiny_zone_threshold_then_allocation_should_be_registered_only_in_LEDGER() {

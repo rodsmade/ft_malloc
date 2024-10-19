@@ -1,7 +1,7 @@
 #include "ft_malloc.h"
 
 void *allocate_in_zone(size_t size, e_tags zone) {
-	AllocationMetadata *ledger = g_data.LEDGERS[zone];
+	t_ledger_entry *ledger = g_data.LEDGERS[zone];
 
 	size_t currently_allocated_size = 0;
 	int i = -1;
@@ -28,7 +28,7 @@ void *allocate_in_zone(size_t size, e_tags zone) {
 void *allocate_out_of_zone(size_t size) {
 	void *chunk = safe_mmap(size);
 	if (chunk) {
-		AllocationMetadata *ledger_entry = g_data.LEDGERS[__LARGE];
+		t_ledger_entry *ledger_entry = g_data.LEDGERS[__LARGE];
 		// Find next empty ledger entry
 		int i = -1;
 		while (ledger_entry[++i].in_use)
@@ -42,7 +42,7 @@ void *allocate_out_of_zone(size_t size) {
 }
 
 bool contains(void *array, void *ptr) {
-	AllocationMetadata *ledger = array;
+	t_ledger_entry *ledger = array;
 	for (int i = 0; ledger[i].ptr; i++) {
 		if (ledger[i].ptr == ptr)
 			return TRUE;
@@ -51,7 +51,7 @@ bool contains(void *array, void *ptr) {
 }
 
 void *pop(e_tags zone, void *ptr) {
-	AllocationMetadata *ledger = ((AllocationMetadata *) g_data.LEDGERS[zone]);
+	t_ledger_entry *ledger = ((t_ledger_entry *) g_data.LEDGERS[zone]);
 
 	int i = -1;
 	while (ledger[++i].ptr && ledger[i].ptr != ptr)
