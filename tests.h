@@ -7,6 +7,8 @@
 # include <sys/types.h>
 # include <sys/stat.h>
 # include <fcntl.h>
+# include <fcntl.h>    // for open()
+# include <unistd.h>   // for read()
 
 // MACROS
 // ## Colours
@@ -41,5 +43,6 @@ void                print_test_index(unsigned int index);
 void                print_test_name(const char *test_name);
 t_ledger_entries    count_ledger_entries(e_tags zone);
 void                run_test_case(TestFunction test_func, const char *test_name);
+void                rand_init(void *ptr, size_t size);
 
 #endif

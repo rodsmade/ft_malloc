@@ -75,3 +75,10 @@ void perror_exit(int condition, const char* err_msg) {
         exit(EXIT_FAILURE);
     }
 }
+
+void rand_init(void *ptr, size_t size) {
+    int fd = open("/dev/urandom", O_RDONLY);
+
+    read(fd, ptr, size);  // Read random bytes into the memory block
+    close(fd);
+}
