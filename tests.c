@@ -530,6 +530,24 @@ void when_pointer_has_not_been_previously_allocated_then_free_has_no_effect_and_
     remove(test_file_name);
 }
 
+void when_reallocating_a_pointer_bigger_than_the_original_its_contents_should_remain_the_same_up_to_old_size() {
+    // Arrange
+    size_t old_size = 42;
+    void *base_ptr = malloc(old_size);
+    rand_init(base_ptr, old_size);
+
+    void *ptr = malloc(old_size);
+
+    ft_memcpy(ptr, base_ptr, old_size);
+    ft_assert(ft_memcmp(ptr, base_ptr, old_size) == 0);
+
+    // Act
+    void *rptr = realloc(ptr, old_size * 2);
+
+    // Assess
+    ft_assert(ft_memcmp(rptr, base_ptr, old_size) == 0);
+}
+
 void when_pointers_have_been_freed_but_new_allocation_is_bigger_than_reusable_chunks_then_ledger_total_count_should_increase() {
     // Arrange
     void *allocs[512];
@@ -648,6 +666,7 @@ int main() {
     RUN_TEST_CASE(when_passing_new_size_smaller_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
     RUN_TEST_CASE(when_passing_new_size_greater_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer);
     RUN_TEST_CASE(when_pointer_has_not_been_previously_allocated_then_free_has_no_effect_and_realloc_returns_NULL);
+    RUN_TEST_CASE(when_reallocating_a_pointer_bigger_than_the_original_its_contents_should_remain_the_same_up_to_old_size);
     RUN_TEST_CASE(when_pointers_have_been_freed_but_new_allocation_is_bigger_than_reusable_chunks_then_ledger_total_count_should_increase);
     RUN_TEST_CASE(when_pointers_have_been_freed_and_new_allocation_is_smaller_than_reusable_chunks_then_reusable_chunks_ledger_total_count_should_remain_the_same);
     RUN_TEST_CASE(when_some_pointers_have_been_freed_and_new_allocation_is_bigger_than_reusable_chunks_then_ledger_total_count_should_increase_and_in_use_count_should_remain_the_same);
