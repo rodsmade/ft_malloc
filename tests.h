@@ -8,12 +8,15 @@
 # include <sys/stat.h>
 # include <fcntl.h>
 
+// MACROS
 // ## Colours
 # define BOLD "\033[1m"
 # define BOLD_GREEN "\033[1;32m"
 # define BOLD_RED "\033[1;31m"
 # define BOLD_YELLOW "\033[1;33m"
 # define RESET "\033[0m"
+// ## Constants
+# define M (1024 * 1024)
 
 // Global variable
 extern unsigned int g_total_test_cases_count;

@@ -401,14 +401,34 @@ void when_passing_ptr_and_0_to_realloc_then_realloc_should_free_ptr_and_return_N
 
 void when_passing_new_size_equal_to_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer() {
     // Arrange
-    void *ptr = malloc(42);
+    size_t size_tn = 42;
+    size_t size_sm = 420;
+    size_t size_lg = 42*M;
+    void *ptr_tn = malloc(size_tn);
+    void *ptr_sm = malloc(size_sm);
+    void *ptr_lg = malloc(size_lg);
 
     // Act
-    void *rptr = realloc(ptr, 42);
+    void *rptr_tn = realloc(ptr_tn, size_tn);
+    void *rptr_sm = realloc(ptr_sm, size_sm);
+    void *rptr_lg = realloc(ptr_lg, size_lg);
 
     // Assert
-    ft_assert(rptr == ptr); // se justifica pelo reuso
-    ft_assert(count_ledger_entries(__TINY).in_use == 1);
+    ft_assert(
+        ptr_tn == rptr_tn
+        && count_ledger_entries(__TINY).in_use == 1
+        && count_ledger_entries(__TINY).total == 1
+    );
+    ft_assert(
+        ptr_sm == rptr_sm
+        && count_ledger_entries(__SMALL).in_use == 1
+        && count_ledger_entries(__SMALL).total == 1
+    );
+    ft_assert(
+        ptr_lg == rptr_lg
+        && count_ledger_entries(__LARGE).in_use == 1
+        && count_ledger_entries(__LARGE).total == 1
+    );
 }
 
 void when_passing_new_size_smaller_than_old_size_then_realloc_should_free_ptr_and_allocate_a_new_pointer() {
