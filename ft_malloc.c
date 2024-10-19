@@ -106,25 +106,23 @@ void	free(void *ptr) {
 }
 
 void	*realloc(void *ptr, size_t size) {
-	void *rptr = NULL;
 
 	if (ptr && !size)
-		free(ptr);
+		return (free(ptr), NULL);
 
 	if (!ptr) {
-		rptr = malloc(size);
+		return (malloc(size));
 	}
 
-	if (ptr && size) {
-		if (contains(g_data.LEDGERS[__TINY], ptr)
-			|| contains(g_data.LEDGERS[__SMALL], ptr)
-			|| contains(g_data.LEDGERS[__LARGE], ptr)) {
-			free(ptr);
-			rptr = malloc(size);
-		} else {
-			free(ptr);
-		}
-	}
+	void *rptr = NULL;
+
+	if (contains(g_data.LEDGERS[__TINY], ptr)
+		|| contains(g_data.LEDGERS[__SMALL], ptr)
+		|| contains(g_data.LEDGERS[__LARGE], ptr)) {
+		free(ptr);
+		rptr = malloc(size);
+	} else
+		ft_putstr_fd("Free in invalid pointer\n", 2);
 
 	return (rptr);
 }
