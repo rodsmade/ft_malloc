@@ -102,11 +102,12 @@ void	*realloc(void *ptr, size_t size);
 void	show_alloc_mem(void);
 
 // UTILS
-void	*allocate_in_zone(size_t size, e_tags zone);
-void	*allocate_out_of_zone(size_t size);
-bool	contains(void *array, void *ptr);
-void	*pop(e_tags zone, void *ptr);
-void	*push_to_back(void *array, void *ptr);
-void	*safe_mmap(size_t size);
+void			*allocate_in_zone(size_t size, e_tags zone);
+void			*allocate_out_of_zone(size_t size);
+bool			contains(void *array, void *ptr);
+t_ledger_entry	get_entry(e_tags zone, void *ptr);
+void			*pop(e_tags zone, void *ptr);
+void			*push_to_back(void *array, void *ptr);
+void			*safe_mmap(size_t size);
 
 #endif

@@ -116,13 +116,19 @@ void	*realloc(void *ptr, size_t size) {
 
 	void *rptr = NULL;
 
-	if (contains(g_data.LEDGERS[__TINY], ptr)
-		|| contains(g_data.LEDGERS[__SMALL], ptr)
-		|| contains(g_data.LEDGERS[__LARGE], ptr)) {
-		free(ptr);
-		rptr = malloc(size);
-	} else
-		ft_putstr_fd("Free in invalid pointer\n", 2);
+	size_t old_size = -1;
+	if (contains(g_data.LEDGERS[__TINY], ptr))
+		old_size = get_entry(__TINY, ptr).size;
+	if (contains(g_data.LEDGERS[__SMALL], ptr))
+		old_size = get_entry(__SMALL, ptr).size;
+	if (contains(g_data.LEDGERS[__LARGE], ptr))
+		old_size = get_entry(__LARGE, ptr).size;
+	
+	if (old_size == (size_t) -1)
+		return (ft_putstr_fd("Free in invalid pointer\n", 2), rptr);
+
+	free(ptr);
+	rptr = malloc(size);
 
 	return (rptr);
 }

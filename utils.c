@@ -88,3 +88,14 @@ void *safe_mmap(size_t size) {
 	}
 	return (allocation);
 }
+
+t_ledger_entry get_entry(e_tags zone, void *ptr) {
+	t_ledger_entry *ledger = g_data.LEDGERS[zone];
+
+	int i = 0;
+	for (; ledger[i].ptr; i++) {
+		if (ledger[i].ptr == ptr)
+			break ;
+	}
+	return ledger[i];
+}
