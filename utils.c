@@ -133,15 +133,14 @@ static void hex_dump(const void *ptr, size_t size) {
 	for (i = 0; i < size; i += 16) {
 		// Print memory offset in hexadecimal
 		ft_putnbr_fd(i, 1);  // Print offset as a number
-		if (!i) ft_putchar_fd(' ', 1);
 		ft_putstr_fd("  ", 1);
 
 		// Print the hex bytes for the block
 		for (j = 0; j < 16; j++) {
 			if (i + j < size) {
 				if (data[i + j] < 16)
-					ft_putstr_fd("0", 1); // Leading zero for single-digit hex
-				ft_putnbr_fd(data[i + j], 1);  // Print byte in hex
+					ft_putchar_fd('0', 1); // Leading zero for single-digit hex
+				ft_puthex_fd(data[i + j], 1);  // Print byte in hex
 			} else {
 				ft_putstr_fd("  ", 1);  // Fill empty space for the last line
 			}
