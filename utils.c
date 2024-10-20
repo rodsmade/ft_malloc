@@ -1,46 +1,5 @@
 #include "ft_malloc.h"
 
-void *allocate_in_zone(size_t size, e_tags zone) {
-	t_ledger_entry *ledger = g_data.LEDGERS[zone];
-
-	size_t currently_allocated_size = 0;
-	int i = -1;
-	while (ledger[++i].ptr) {
-		// Checks for available space
-		currently_allocated_size += ledger[i].size;
-		if (currently_allocated_size + size > g_data.CAPACITIES[zone])
-			return (NULL);
-
-		// Checks for the possibility to reuse previously allocated chunks
-		if (!ledger[i].in_use && ledger[i].size >= size) {
-			ledger[i].in_use = TRUE;
-			return (ledger[i].ptr);
-		}
-	}
-	// Marks memory chunk as used
-	ledger[i].ptr = (void *) g_data.ZONES[zone] + currently_allocated_size;
-	ledger[i].in_use = TRUE;
-	ledger[i].size = size;
-
-	return (ledger[i].ptr);
-}
-
-void *allocate_out_of_zone(size_t size) {
-	void *chunk = safe_mmap(size);
-	if (chunk) {
-		t_ledger_entry *ledger_entry = g_data.LEDGERS[__LARGE];
-		// Find next empty ledger entry
-		int i = -1;
-		while (ledger_entry[++i].in_use)
-			continue ;
-		// Add new entry to ledger
-		ledger_entry[i].ptr = chunk;
-		ledger_entry[i].in_use = TRUE;
-		ledger_entry[i].size = size;
-	}
-	return (chunk);
-}
-
 bool contains(void *array, void *ptr) {
 	t_ledger_entry *ledger = array;
 	for (int i = 0; ledger[i].ptr; i++) {

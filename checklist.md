@@ -20,7 +20,7 @@
 - [x] 1024 x 1024
 - [x] realloc kakakakak
 - [x] show_alloc_mem comendo entradas
+- [x] separar as funções em arquivos (free malloc etc) - organização repo
 - [ ] [bonus] hexdump
 - [ ] [bonus] mutexes 👀
 - [ ] refatorar free pra ficar bonito vai
-- [ ] separar as funções em arquivos (free malloc etc) - organização repo
