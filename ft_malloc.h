@@ -113,5 +113,6 @@ void			*pop(e_tags zone, void *ptr);
 void			*push_to_back(void *array, void *ptr);
 void			*safe_mmap(size_t size);
 void			show_alloc_mem(void);
+void			show_hex_dump(void);
 
 #endif

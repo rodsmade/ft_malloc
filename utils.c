@@ -101,10 +101,10 @@ void show_alloc_mem(void) {
 		}
 	}
 	// Print allocations in tiny zone
-	ft_putstr_fd("LARGE : ", 1);
-	ft_putptr_fd(g_data.ZONES[__LARGE], 1);
-	ft_putchar_fd('\n', 1);
 	head = g_data.LEDGERS[__LARGE];
+	ft_putstr_fd("LARGE : ", 1);
+	ft_putptr_fd(head->ptr, 1);
+	ft_putchar_fd('\n', 1);
 	for (size_t i = 0; (i < MIN_NB_ENTRIES && head[0].ptr); i++) {
 		if (head[i].in_use) {
 			ft_putptr_fd((void *) head[i].ptr, 1);
@@ -124,3 +124,113 @@ void show_alloc_mem(void) {
 	ft_putendl_fd("=================================================", 1);
 	return ;
 }
+
+static void hex_dump(const void *ptr, size_t size) {
+	const unsigned char *data = (const unsigned char *)ptr;
+	size_t i, j;
+	char separator[] = " | ";
+	
+	for (i = 0; i < size; i += 16) {
+		// Print memory offset in hexadecimal
+		ft_putnbr_fd(i, 1);  // Print offset as a number
+		if (!i) ft_putchar_fd(' ', 1);
+		ft_putstr_fd("  ", 1);
+
+		// Print the hex bytes for the block
+		for (j = 0; j < 16; j++) {
+			if (i + j < size) {
+				if (data[i + j] < 16)
+					ft_putstr_fd("0", 1); // Leading zero for single-digit hex
+				ft_putnbr_fd(data[i + j], 1);  // Print byte in hex
+			} else {
+				ft_putstr_fd("  ", 1);  // Fill empty space for the last line
+			}
+			ft_putstr_fd(" ", 1);  // Space between hex values
+		}
+
+		// Print the ASCII representation
+		ft_putstr_fd(separator, 1);  // Print the separator " | "
+		for (j = 0; j < 16; j++) {
+			if (i + j < size) {
+				if (ft_isprint(data[i + j])) {
+					ft_putchar_fd(data[i + j], 1);  // Print ASCII char
+				} else {
+					ft_putchar_fd('.', 1);  // Non-printable char
+				}
+			} else {
+				ft_putchar_fd(' ', 1);  // Fill empty space for the last line
+			}
+		}
+		ft_putstr_fd(" |\n", 1);  // End of line
+	}
+}
+
+void show_hex_dump(void) {
+
+	ft_putendl_fd("=================================================", 1);
+	ft_putendl_fd("=           MEMORY LAYOUT (HEX DUMP)            =", 1);
+	ft_putendl_fd("=================================================", 1);
+
+	t_ledger_entry *head;
+	size_t total_allocated_bytes = 0;
+
+	// Print allocations in tiny zone
+	ft_putstr_fd("TINY : ", 1);
+	ft_putptr_fd(g_data.ZONES[__TINY], 1);
+	ft_putchar_fd('\n', 1);
+	head = g_data.LEDGERS[__TINY];
+	for (size_t i = 0; (i < MIN_NB_ENTRIES && head[0].ptr); i++) {
+		if (head[i].in_use) {
+			ft_putptr_fd((void *) head[i].ptr, 1);
+			ft_putstr_fd(" - ", 1);
+			ft_putptr_fd((void *) head[i].ptr +  head[i].size, 1);
+			ft_putstr_fd(" : ", 1);
+			ft_putnbr_fd(head[i].size, 1);
+			ft_putendl_fd(" bytes", 1);
+			hex_dump(head[i].ptr, head[i].size);
+			total_allocated_bytes += head[i].size;
+		}
+	}
+	// Print allocations in small zone
+	ft_putstr_fd("SMALL : ", 1);
+	ft_putptr_fd(g_data.ZONES[__SMALL], 1);
+	ft_putchar_fd('\n', 1);
+	head = g_data.LEDGERS[__SMALL];
+	for (size_t i = 0; (i < MIN_NB_ENTRIES && head[0].ptr); i++) {
+		if (head[i].in_use) {
+			ft_putptr_fd((void *) head[i].ptr, 1);
+			ft_putstr_fd(" - ", 1);
+			ft_putptr_fd((void *) head[i].ptr +  head[i].size, 1);
+			ft_putstr_fd(" : ", 1);
+			ft_putnbr_fd(head[i].size, 1);
+			ft_putendl_fd(" bytes", 1);
+			hex_dump(head[i].ptr, head[i].size);
+			total_allocated_bytes += head[i].size;
+		}
+	}
+	// Print allocations in tiny zone
+	head = g_data.LEDGERS[__LARGE];
+	ft_putstr_fd("LARGE : ", 1);
+	ft_putptr_fd(head->ptr, 1);
+	ft_putchar_fd('\n', 1);
+	for (size_t i = 0; (i < MIN_NB_ENTRIES && head[0].ptr); i++) {
+		if (head[i].in_use) {
+			ft_putptr_fd((void *) head[i].ptr, 1);
+			ft_putstr_fd(" - ", 1);
+			ft_putptr_fd((void *) head[i].ptr +  head[i].size, 1);
+			ft_putstr_fd(" : ", 1);
+			ft_putnbr_fd(head[i].size, 1);
+			ft_putendl_fd(" bytes", 1);
+			hex_dump(head[i].ptr, head[i].size);
+			total_allocated_bytes += head[i].size;
+		}
+	}
+
+	ft_putstr_fd("Total : ", 1);
+	ft_putnbr_fd(total_allocated_bytes, 1);
+	ft_putendl_fd(" bytes", 1);
+
+	ft_putendl_fd("=================================================", 1);
+	return ;
+}
+

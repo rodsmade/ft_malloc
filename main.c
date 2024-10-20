@@ -57,6 +57,12 @@ int	main(void)
 	free(ptr6);
 	free(ptr7);
 	free(ptr8);
+	free(ptr9);
+	free(ptr10);
+	free(ptr11);
+
+	show_alloc_mem();
+	show_hex_dump();
 
 	return (0);
 }
