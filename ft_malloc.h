@@ -19,6 +19,7 @@
 # include <sys/time.h>
 # include <sys/resource.h> // getrlimit()
 # include <stdio.h> // perror()
+# include <pthread.h>
 
 // CUSTOM HEADERS
 # include "libft.h"
@@ -55,9 +56,10 @@ typedef struct s_ledger_entry {
 }	t_ledger_entry;
 
 typedef struct s_global_data {
-	void	*ZONES[3];
-	void	*LEDGERS[3];
-	size_t	CAPACITIES[4];
+	void			*ZONES[3];
+	void			*LEDGERS[3];
+	size_t			CAPACITIES[4];
+	pthread_mutex_t	MUTEX;
 }	t_global_data;
 
 // INLINE FUNCTIONS

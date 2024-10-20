@@ -63,8 +63,12 @@ static void *allocate_out_of_zone(size_t size) {
 void	*malloc(size_t size) {
 	void *ptr = NULL;
 
-	if (size > get_max_rlimit_data()) // exceeds single allocation size limit
+	pthread_mutex_lock(&g_data.MUTEX);
+
+	if (size > get_max_rlimit_data()) {  // exceeds single allocation size limit
+		pthread_mutex_unlock(&g_data.MUTEX);  // Unlock the mutex before returning
 		return ptr;
+	}
 
 	if (size <= TINY_ZONE_THRESHOLD)
 		ptr = allocate_in_zone(size, __TINY);
@@ -72,6 +76,8 @@ void	*malloc(size_t size) {
 		ptr = allocate_in_zone(size, __SMALL);
 	if (size > SMALL_ZONE_THRESHOLD)
 		ptr = allocate_out_of_zone(size);
+
+	pthread_mutex_unlock(&g_data.MUTEX);  // Unlock the mutex
 
 	return (ptr);
 }

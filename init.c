@@ -29,4 +29,11 @@ void prologue() {
 	ft_bzero(g_data.LEDGERS[__SMALL], g_data.CAPACITIES[__LEDGER]);
 	g_data.LEDGERS[__LARGE] = safe_mmap(g_data.CAPACITIES[__LEDGER]);
 	ft_bzero(g_data.LEDGERS[__LARGE], g_data.CAPACITIES[__LEDGER]);
+
+	// Mutex
+	if (pthread_mutex_init(&g_data.MUTEX, NULL) != 0) {
+		// Handle error
+		perror("call to pthread_mutex_init failed");
+		exit(EXIT_FAILURE);
+	}
 }
