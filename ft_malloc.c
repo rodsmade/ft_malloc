@@ -127,8 +127,14 @@ void	*realloc(void *ptr, size_t size) {
 	if (old_size == (size_t) -1)
 		return (ft_putstr_fd("Free in invalid pointer\n", 2), rptr);
 
-	free(ptr);
-	rptr = malloc(size);
+	if (size > old_size) {
+		rptr = malloc(size);
+		ft_memcpy(rptr, ptr, old_size);
+		free(ptr);
+	} else {
+		free(ptr);
+		rptr = malloc(size);
+	}
 
 	return (rptr);
 }
