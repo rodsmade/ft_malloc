@@ -50,6 +50,17 @@ bool contains(void *array, void *ptr) {
 	return FALSE;
 }
 
+t_ledger_entry get_entry(e_tags zone, void *ptr) {
+	t_ledger_entry *ledger = g_data.LEDGERS[zone];
+
+	int i = 0;
+	for (; ledger[i].ptr; i++) {
+		if (ledger[i].ptr == ptr)
+			break ;
+	}
+	return ledger[i];
+}
+
 void *pop(e_tags zone, void *ptr) {
 	t_ledger_entry *ledger = ((t_ledger_entry *) g_data.LEDGERS[zone]);
 
@@ -89,13 +100,68 @@ void *safe_mmap(size_t size) {
 	return (allocation);
 }
 
-t_ledger_entry get_entry(e_tags zone, void *ptr) {
-	t_ledger_entry *ledger = g_data.LEDGERS[zone];
+void show_alloc_mem(void) {
 
-	int i = 0;
-	for (; ledger[i].ptr; i++) {
-		if (ledger[i].ptr == ptr)
-			break ;
+	ft_putendl_fd("=================================================", 1);
+	ft_putendl_fd("=               MEMORY LAYOUT                   =", 1);
+	ft_putendl_fd("=================================================", 1);
+
+	t_ledger_entry *head;
+	size_t total_allocated_bytes = 0;
+
+	// Print allocations in tiny zone
+	ft_putstr_fd("TINY : ", 1);
+	ft_putptr_fd(g_data.ZONES[__TINY], 1);
+	ft_putchar_fd('\n', 1);
+	head = g_data.LEDGERS[__TINY];
+	for (size_t i = 0; (i < MIN_NB_ENTRIES && head[0].ptr); i++) {
+		if (head[i].in_use) {
+			ft_putptr_fd((void *) head[i].ptr, 1);
+			ft_putstr_fd(" - ", 1);
+			ft_putptr_fd((void *) head[i].ptr +  head[i].size, 1);
+			ft_putstr_fd(" : ", 1);
+			ft_putnbr_fd(head[i].size, 1);
+			ft_putendl_fd(" bytes", 1);
+			total_allocated_bytes += head[i].size;
+		}
 	}
-	return ledger[i];
+	// Print allocations in small zone
+	ft_putstr_fd("SMALL : ", 1);
+	ft_putptr_fd(g_data.ZONES[__SMALL], 1);
+	ft_putchar_fd('\n', 1);
+	head = g_data.LEDGERS[__SMALL];
+	for (size_t i = 0; (i < MIN_NB_ENTRIES && head[0].ptr); i++) {
+		if (head[i].in_use) {
+			ft_putptr_fd((void *) head[i].ptr, 1);
+			ft_putstr_fd(" - ", 1);
+			ft_putptr_fd((void *) head[i].ptr +  head[i].size, 1);
+			ft_putstr_fd(" : ", 1);
+			ft_putnbr_fd(head[i].size, 1);
+			ft_putendl_fd(" bytes", 1);
+			total_allocated_bytes += head[i].size;
+		}
+	}
+	// Print allocations in tiny zone
+	ft_putstr_fd("LARGE : ", 1);
+	ft_putptr_fd(g_data.ZONES[__LARGE], 1);
+	ft_putchar_fd('\n', 1);
+	head = g_data.LEDGERS[__LARGE];
+	for (size_t i = 0; (i < MIN_NB_ENTRIES && head[0].ptr); i++) {
+		if (head[i].in_use) {
+			ft_putptr_fd((void *) head[i].ptr, 1);
+			ft_putstr_fd(" - ", 1);
+			ft_putptr_fd((void *) head[i].ptr +  head[i].size, 1);
+			ft_putstr_fd(" : ", 1);
+			ft_putnbr_fd(head[i].size, 1);
+			ft_putendl_fd(" bytes", 1);
+			total_allocated_bytes += head[i].size;
+		}
+	}
+
+	ft_putstr_fd("Total : ", 1);
+	ft_putnbr_fd(total_allocated_bytes, 1);
+	ft_putendl_fd(" bytes", 1);
+
+	ft_putendl_fd("=================================================", 1);
+	return ;
 }

@@ -99,7 +99,10 @@ extern t_global_data g_data;
 void	free(void *ptr);
 void	*malloc(size_t size);
 void	*realloc(void *ptr, size_t size);
-void	show_alloc_mem(void);
+
+// INIT/CLEANUP
+void	prologue() __attribute__((constructor));
+void	epilogue() __attribute__((destructor));
 
 // UTILS
 void			*allocate_in_zone(size_t size, e_tags zone);
@@ -109,5 +112,6 @@ t_ledger_entry	get_entry(e_tags zone, void *ptr);
 void			*pop(e_tags zone, void *ptr);
 void			*push_to_back(void *array, void *ptr);
 void			*safe_mmap(size_t size);
+void			show_alloc_mem(void);
 
 #endif
