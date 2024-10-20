@@ -54,7 +54,7 @@ int	main(void)
 	// ptr11 = malloc(4096000 * sizeof(char));
 
 	show_alloc_mem();
-	show_hex_dump();
+	show_alloc_mem_ex();
 
 	free(ptr1 + 1);
 	free(ptr2 + 1);
@@ -75,7 +75,7 @@ int	main(void)
 	// free(ptr11);
 
 	show_alloc_mem();
-	show_hex_dump();
+	show_alloc_mem_ex();
 
 	return (0);
 }

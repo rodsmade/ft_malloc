@@ -164,7 +164,7 @@ static void hex_dump(const void *ptr, size_t size) {
 	}
 }
 
-void show_hex_dump(void) {
+void show_alloc_mem_ex(void) {
 
 	ft_putendl_fd("=================================================", 1);
 	ft_putendl_fd("=           MEMORY LAYOUT (HEX DUMP)            =", 1);
