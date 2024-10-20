@@ -140,66 +140,65 @@ void	*realloc(void *ptr, size_t size) {
 }
 
 void show_alloc_mem(void) {
-	t_ledger_entry *head;
-	int total = 0;
 
 	ft_putendl_fd("=================================================", 1);
 	ft_putendl_fd("=               MEMORY LAYOUT                   =", 1);
 	ft_putendl_fd("=================================================", 1);
 
-	// Print allocations in TINY_
+	t_ledger_entry *head;
+	size_t total_allocated_bytes = 0;
+
+	// Print allocations in tiny zone
 	ft_putstr_fd("TINY : ", 1);
 	ft_putptr_fd(g_data.ZONES[__TINY], 1);
 	ft_putchar_fd('\n', 1);
-
-	head = (t_ledger_entry *) g_data.ZONES[__TINY];
-	while (head->in_use) {
-		ft_putptr_fd((void *) head + sizeof(t_ledger_entry), 1);
-		ft_putstr_fd(" - ", 1);
-		ft_putptr_fd((void *) head + sizeof(t_ledger_entry) + head->size, 1);
-		ft_putstr_fd(" : ", 1);
-		ft_putnbr_fd(head->size, 1);
-		total += head->size;
-		ft_putendl_fd(" bytes", 1);
-		head += sizeof(t_ledger_entry) + head->size;
+	head = g_data.LEDGERS[__TINY];
+	for (size_t i = 0; (i < MIN_NB_ENTRIES && head[0].ptr); i++) {
+		if (head[i].in_use) {
+			ft_putptr_fd((void *) head[i].ptr, 1);
+			ft_putstr_fd(" - ", 1);
+			ft_putptr_fd((void *) head[i].ptr +  head[i].size, 1);
+			ft_putstr_fd(" : ", 1);
+			ft_putnbr_fd(head[i].size, 1);
+			ft_putendl_fd(" bytes", 1);
+			total_allocated_bytes += head[i].size;
+		}
 	}
-
-	// Print allocations in SMALL_
+	// Print allocations in small zone
 	ft_putstr_fd("SMALL : ", 1);
 	ft_putptr_fd(g_data.ZONES[__SMALL], 1);
 	ft_putchar_fd('\n', 1);
-
-	head = (t_ledger_entry *) g_data.ZONES[__SMALL];
-	while (head->in_use) {
-		ft_putptr_fd((void *) head + sizeof(t_ledger_entry), 1);
-		ft_putstr_fd(" - ", 1);
-		ft_putptr_fd((void *) head + sizeof(t_ledger_entry) + head->size, 1);
-		ft_putstr_fd(" : ", 1);
-		ft_putnbr_fd(head->size, 1);
-		total += head->size;
-		ft_putendl_fd(" bytes", 1);
-		head += sizeof(t_ledger_entry) + head->size;
+	head = g_data.LEDGERS[__SMALL];
+	for (size_t i = 0; (i < MIN_NB_ENTRIES && head[0].ptr); i++) {
+		if (head[i].in_use) {
+			ft_putptr_fd((void *) head[i].ptr, 1);
+			ft_putstr_fd(" - ", 1);
+			ft_putptr_fd((void *) head[i].ptr +  head[i].size, 1);
+			ft_putstr_fd(" : ", 1);
+			ft_putnbr_fd(head[i].size, 1);
+			ft_putendl_fd(" bytes", 1);
+			total_allocated_bytes += head[i].size;
+		}
 	}
-
-	// Print allocations in LARGE_
+	// Print allocations in tiny zone
 	ft_putstr_fd("LARGE : ", 1);
-	ft_putptr_fd(g_data.LEDGERS[__LARGE], 1);
+	ft_putptr_fd(g_data.ZONES[__LARGE], 1);
 	ft_putchar_fd('\n', 1);
-	void **largeEntry = g_data.LEDGERS[__LARGE];
-	int i = -1;
-	while (largeEntry[++i] != NULL) {
-		ft_putptr_fd((void *) largeEntry[i], 1);
-		ft_putstr_fd(" - ", 1);
-		size_t alloc_size = ((t_ledger_entry *)(((void *) largeEntry[i]) - sizeof(t_ledger_entry)))->size;
-		ft_putptr_fd((void *) largeEntry[i] + alloc_size, 1);
-		ft_putstr_fd(" : ", 1);
-		ft_putnbr_fd(alloc_size, 1);
-		total += alloc_size;
-		ft_putendl_fd(" bytes", 1);
+	head = g_data.LEDGERS[__LARGE];
+	for (size_t i = 0; (i < MIN_NB_ENTRIES && head[0].ptr); i++) {
+		if (head[i].in_use) {
+			ft_putptr_fd((void *) head[i].ptr, 1);
+			ft_putstr_fd(" - ", 1);
+			ft_putptr_fd((void *) head[i].ptr +  head[i].size, 1);
+			ft_putstr_fd(" : ", 1);
+			ft_putnbr_fd(head[i].size, 1);
+			ft_putendl_fd(" bytes", 1);
+			total_allocated_bytes += head[i].size;
+		}
 	}
 
 	ft_putstr_fd("Total : ", 1);
-	ft_putnbr_fd(total, 1);
+	ft_putnbr_fd(total_allocated_bytes, 1);
 	ft_putendl_fd(" bytes", 1);
 
 	ft_putendl_fd("=================================================", 1);
