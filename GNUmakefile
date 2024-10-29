@@ -36,15 +36,12 @@ main: main.out
 run: main.out
 	./main.out
 
-val: main
-	valgrind --soname-synonyms=somalloc=libft_malloc.so --leak-check=full -q ./main.out
-
 re: fclean $(LIBNAME)
 
 rerun: re run
 
 tests.out: $(LIBNAME) tests.c
-	$(CC) tests.c test_utils.c -Wl,-rpath,. -lft_malloc_x86_64_Linux -L. -L./libft -I./libft/include -lft -o tests.out
+	$(CC) tests.c test_utils.c -Wl,-rpath,. -l$(LIBNAME_SHORT) -L. -L./libft -I./libft/include -lft -o tests.out
 
 tests: tests.out
 	./tests.out
