@@ -10,7 +10,7 @@
 
 ## from pdf
 - [x] (Refactor) You are allowed a global variable to manage your allocations and one for the thread-safe
-- [x] Your project must be clean code even without norm if it’s ugly you will get 0.
+- [x] Your project must be clean code even without norm if it's ugly you will get 0.
 - [x] You must use the mmap(2) and munmap(2) syscall to claim and return the memory zones to the system.
 - [x] Each zone must contain at least 100 allocations
 

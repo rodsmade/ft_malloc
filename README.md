@@ -1,14 +1,18 @@
 # ft_malloc
 My very own replica of the legendary triumvirate: `malloc`, `free` and `realloc`.
 
-This project invites you to open up the hood of these very well-known libc functions and understand really deeply what is going on everytime you allocate and deallocate a pointer using these functions. By writing my own implementation of a memory allocator in C, I learned more abot virtual memory, memory alignment, internal bookkeeping strategies, dynamic libraries and even memory defragmentation (although I didn't implement it myself). I had a lot of fun!
+This project invites you to look under the hood of these widely known `libc` functions and gain a deeper understanding of what really happens each time you allocate or deallocate a pointer using them. By creating my own implementation of a memory allocator in C, I've learned a lot about virtual memory, memory alignment, internal bookkeeping strategies, dynamic libraries, and even memory defragmentation (though I didn't implement it myself). I had a lot of fun!
 
 ## Notable takeaways
-- *"a call to malloc claims memory from the system"* - That is an adage repeated over and over about `malloc` especially amongst beginners, but this isn't necessarily the truth. It suffices to conceive `malloc` under this light when you are a programmer using it, but you soon realise that this is exactly what `malloc` is designed to AVOID doing: constantly making requests to the kernel.
-- *"a call to free returns memory back to the system"* - Again this is probably how most people are introduced to `free`, but it's not entirely true. Memory is supposed to be handed back to the system by the end of process execution in most cases.
-- "the `main()` function is the entrypoint for any program written in C" - This is a perfectly good way of understanding what a program is and how it works for beginners, but eventually you realise there's workaraounds for that. `malloc` needs them in order to properly work.
-- "dynamic libraries are shared between processes" - While it is true that dynamic libraries are not copied into binary files during compilation, making them easy to share across programs, the dynamic library takes a separate address space for each process.
-- at the end of the day, memory is literally just a big blob of zeroes and ones. That's it. What really matters is how you interpret memory, and that is why typecasting is such a powerful feature, especially in low-level languages like C.
+- *"A call to malloc claims memory from the system."* This adage, common among beginners, isn't quite accurate. While it's fine to think of `malloc` this way when you're a programmer using it, it's actually designed to AVOID making constant requests to the kernel.
+
+- *"A call to free returns memory back to the system."* Again, this is how `free` is often explained to beginners, but it's not the full story. Memory is typically only handed back to the system at the end of a process, not with every call to `free`.
+
+- *"The `main()` function is the entry point for any program written in C."* This is generally true, but eventually, you discover workarounds. `malloc` in fact relies on these mechanisms to work properly.
+
+- *"Dynamic libraries are shared between processes."* While it is true that dynamic libraries aren't copied into binaries during compilation, thus allowing for them to be shared across programs, they still take up a unique address space when loaded into each process.
+
+- At the end of the day, memory is simply a massive blob of zeroes and ones — nothing more. What truly matters is *how* you interpret memory, and this is why typecasting is such a powerful tool, especially in low-level languages like C.
 
 ## Project Features
 - Compiler attributes (`__atribute__((constructor|destructor))`)
