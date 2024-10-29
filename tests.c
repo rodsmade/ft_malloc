@@ -242,6 +242,7 @@ void when_allocating_100_allocations_in_TINY_ZONE_then_malloc_should_behave_OK()
     // Act
     for (int i = 0; i < 100; i++)
         allocs[i] = malloc(TINY_ZONE_THRESHOLD);
+    (void) allocs;
 
     // Assert
     ft_assert(count_ledger_entries(__TINY).in_use == 100);
@@ -254,6 +255,7 @@ void when_allocating_100_allocations_in_SMALL_ZONE_then_malloc_should_behave_OK(
     // Act
     for (int i = 0; i < 100; i++)
         allocs[i] = malloc(SMALL_ZONE_THRESHOLD);
+    (void) allocs;
 
     // Assert
     ft_assert(count_ledger_entries(__SMALL).in_use == 100);
@@ -294,8 +296,11 @@ void when_allocating_100_allocations_of_each_zone_at_once_then_malloc_should_beh
     ft_assert(count_ledger_entries(__LARGE).in_use == 100);
 
     // Free
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < 100; i++) {
+        free(tiny_allocs[i]);
+        free(small_allocs[i]);
         free(large_allocs[i]);
+    }
 }
 
 void when_allocating_beyond_maximum_capacity_for_TINY_ZONE_then_malloc_should_return_NULL() {
