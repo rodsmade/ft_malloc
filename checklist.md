@@ -23,5 +23,5 @@
 - [x] separar as funções em arquivos (free malloc etc) - organização repo
 - [x] [bonus] hexdump
 - [x] [bonus] mutexes 👀
+- [x] organizar arquivos dentro da pasta
 - [ ] refatorar free pra ficar bonito vai
-- [ ] organizar arquivos dentro da pasta
