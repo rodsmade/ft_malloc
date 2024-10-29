@@ -6,7 +6,7 @@
 /*   By: roaraujo <roaraujo@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/31 17:18:54 by roaraujo          #+#    #+#             */
-/*   Updated: 2024/06/03 23:13:51 by roaraujo         ###   ########.fr       */
+/*   Updated: 2024/10/29 19:12:10 by roaraujo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,12 +107,12 @@ void	prologue() __attribute__((constructor));
 void	epilogue() __attribute__((destructor));
 
 // UTILS
-bool			contains(void *array, void *ptr);
-t_ledger_entry	get_entry(e_tags zone, void *ptr);
-void			*pop(e_tags zone, void *ptr);
-void			*push_to_back(void *array, void *ptr);
-void			*safe_mmap(size_t size);
-void			show_alloc_mem(void);
-void			show_alloc_mem_ex(void);
+bool						contains(void *array, void *ptr);
+t_ledger_entry	*get_entry(e_tags zone, void *ptr);
+void						*pop(e_tags zone, void *ptr);
+void						*push_to_back(void *array, void *ptr);
+void						*safe_mmap(size_t size);
+void						show_alloc_mem(void);
+void						show_alloc_mem_ex(void);
 
 #endif

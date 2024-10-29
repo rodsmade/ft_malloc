@@ -17,11 +17,11 @@ void	*realloc(void *ptr, size_t size) {
 
 	size_t old_size = -1;
 	if (contains(g_data.LEDGERS[__TINY], ptr))
-		old_size = get_entry(__TINY, ptr).size;
+		old_size = get_entry(__TINY, ptr)->size;
 	if (contains(g_data.LEDGERS[__SMALL], ptr))
-		old_size = get_entry(__SMALL, ptr).size;
+		old_size = get_entry(__SMALL, ptr)->size;
 	if (contains(g_data.LEDGERS[__LARGE], ptr))
-		old_size = get_entry(__LARGE, ptr).size;
+		old_size = get_entry(__LARGE, ptr)->size;
 	
 	if (old_size == (size_t) -1) {
 		pthread_mutex_unlock(&g_data.MUTEX);  // Unlock the mutex after realloc

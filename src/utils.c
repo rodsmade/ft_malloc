@@ -9,7 +9,7 @@ bool contains(void *array, void *ptr) {
 	return FALSE;
 }
 
-t_ledger_entry get_entry(e_tags zone, void *ptr) {
+t_ledger_entry *get_entry(e_tags zone, void *ptr) {
 	t_ledger_entry *ledger = g_data.LEDGERS[zone];
 
 	int i = 0;
@@ -17,7 +17,7 @@ t_ledger_entry get_entry(e_tags zone, void *ptr) {
 		if (ledger[i].ptr == ptr)
 			break ;
 	}
-	return ledger[i];
+	return (&ledger[i]);
 }
 
 void *pop(e_tags zone, void *ptr) {
